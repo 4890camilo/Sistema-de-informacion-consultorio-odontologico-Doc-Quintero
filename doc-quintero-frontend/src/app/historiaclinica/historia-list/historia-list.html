@@ -1,0 +1,135 @@
+<div class="page-container">
+  <div class="page-header">
+    <h1>Historias Clínicas</h1>
+    <p>Gestiona los registros clínicos de los pacientes</p>
+  </div>
+
+  <div class="alert alert-error" *ngIf="errorMessage">
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+      <circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="1.4"/>
+      <path d="M8 5v3.5M8 11h.01" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+    </svg>
+    {{ errorMessage }}
+  </div>
+
+  <div *ngIf="!selectedPatient" class="patient-list-view">
+    <div class="patient-selector">
+      <h3>Selecciona un Paciente</h3>
+      
+      <div class="loading-spinner" *ngIf="isLoadingPatients">
+        <div class="spinner"></div>
+        <p>Cargando pacientes...</p>
+      </div>
+
+      <div class="patient-list" *ngIf="!isLoadingPatients">
+        <div *ngIf="patients.length === 0" class="empty-state">
+          <p>No hay pacientes registrados</p>
+        </div>
+
+        <div *ngFor="let patient of patients" 
+             class="patient-card" 
+             (click)="selectPatient(patient)">
+          <div class="patient-info">
+            <h4>{{ patient.firstName }} {{ patient.lastName }}</h4>
+            <p class="patient-meta">
+              <span>{{ patient.identificationNumber }}</span>
+              <span class="dot">•</span>
+              <span>{{ patient.email }}</span>
+            </p>
+          </div>
+          <svg class="patient-arrow" viewBox="0 0 24 24" fill="none">
+            <path d="M9 18l6-6-6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="selectedPatient" class="patient-detail-view">
+    <button class="btn-back" (click)="goBack()">
+      <svg viewBox="0 0 24 24" fill="none">
+        <path d="M15 18l-6-6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      Volver a Pacientes
+    </button>
+
+    <div class="patient-header">
+      <h2>{{ selectedPatient.firstName }} {{ selectedPatient.lastName }}</h2>
+      <p class="patient-id">{{ selectedPatient.identificationNumber }}</p>
+    </div>
+
+    <div class="loading-spinner" *ngIf="isLoadingHistory">
+      <div class="spinner"></div>
+      <p>Cargando historia clínica...</p>
+    </div>
+
+    <div *ngIf="!isLoadingHistory && medicalHistory" class="history-card">
+      <div class="history-section">
+        <h3>Motivo de Consulta</h3>
+        <p>{{ medicalHistory.reasonForConsultation }}</p>
+      </div>
+
+      <div class="history-section">
+        <h3>Enfermedad Actual</h3>
+        <p>{{ medicalHistory.currentIllness }}</p>
+      </div>
+
+      <div class="history-row">
+        <div class="history-section">
+          <h3>Observaciones</h3>
+          <p>{{ medicalHistory.extraoralExam || 'N/A' }}</p>
+        </div>
+        <div class="history-section">
+          <h3>Antecedentes Familiares</h3>
+          <p>{{ medicalHistory.familyHistory || 'N/A' }}</p>
+        </div>
+      </div>
+
+      <div class="history-row">
+        <div class="history-section">
+          <h3>Medicamentos</h3>
+          <p>{{ medicalHistory.medications || 'Ninguno' }}</p>
+        </div>
+        <div class="history-section">
+          <h3>Alergias</h3>
+          <p>{{ medicalHistory.allergies || 'Ninguna' }}</p>
+        </div>
+      </div>
+
+      <div class="history-section">
+        <h3>Antecedentes Odontológicos</h3>
+        <p>{{ medicalHistory.dentalHistory || 'N/A' }}</p>
+        <p>{{ medicalHistory.dentalHistory || 'N/A' }}</p>
+      </div>
+
+      <div class="history-section">
+        <h3>Examen Extraoral</h3>
+        <p>{{ medicalHistory.extraoralExam || 'Normal' }}</p>
+      </div>
+
+      <div class="history-section">
+        <h3>Examen Intraoral</h3>
+        <p>{{ medicalHistory.intraoralExam || 'Normal' }}</p>
+      </div>
+
+      <div class="history-actions">
+        <button class="btn btn-primary" (click)="editMedicalHistory()">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path d="M2 13.333v1.333h1.333L11.333 7.333 10 6 2 14.333zM14 2.667a1.333 1.333 0 010 1.886L12.447 7.106l-1.333-1.333 1.553-1.553a1.333 1.333 0 011.333 0z" fill="currentColor"/>
+          </svg>
+          Editar Historia
+        </button>
+      </div>
+    </div>
+
+    <div *ngIf="!isLoadingHistory && !medicalHistory" class="empty-state">
+      <p>No hay historia clínica registrada para este paciente</p>
+      <button class="btn btn-primary" (click)="createMedicalHistory()">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <path d="M8 3v10M3 8h10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+        Crear Historia Clínica
+      </button>
+    </div>
+  </div>
+</div>

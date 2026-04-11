@@ -1,0 +1,26 @@
+@import '../citas-shared.scss';
+
+.form-actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 2rem;
+  
+  .btn {
+    flex: 1;
+    min-height: 48px;
+    font-size: 1rem;
+    font-weight: 600;
+    
+    &:disabled {
+      cursor: default;
+      background-color: #ccc;
+      border-color: #ccc;
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .form-actions {
+    flex-direction: column;
+  }
+}

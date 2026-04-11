@@ -1,0 +1,18 @@
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,600&family=DM+Sans:wght@300;400;500&display=swap');
+
+// ── Variables ──────────────────────────────────────────────
+$teal-deep:    #0a4a4a;
+$teal-mid:     #0d6b6b;
+$teal-light:   #19a8a8;
+$teal-pale:    #e8f6f6;
+$accent:       #f0a500;
+$text-primary: #1a2e2e;
+$text-muted:   #6b8c8c;
+$error:        #d94a4a;
+$success:      #2d8659;
+$border:       #c8dede;
+$white:        #ffffff;
+$bg-light:     #f5fafa;
+
+// Import all shared styles from citas-shared
+@import '../citas/citas-shared.scss';

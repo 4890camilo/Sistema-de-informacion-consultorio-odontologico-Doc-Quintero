@@ -1,0 +1,174 @@
+<div class="page-container">
+  <div class="page-header">
+    <h1>Editar Historia Clínica</h1>
+    <p>Actualiza la historia clínica del paciente</p>
+  </div>
+
+  <div class="alert alert-success" *ngIf="successMessage">
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+      <path d="M13.5 4.5L6 12L2.5 8.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    {{ successMessage }}
+  </div>
+
+  <div class="alert alert-error" *ngIf="errorMessage">
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+      <circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="1.4"/>
+      <path d="M8 5v3.5M8 11h.01" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+    </svg>
+    {{ errorMessage }}
+  </div>
+
+  <div class="loading-spinner" *ngIf="isLoadingPage">
+    <div class="spinner"></div>
+    <p>Cargando información...</p>
+  </div>
+
+  <div class="form-card" *ngIf="!isLoadingPage && patient">
+    <div class="patient-info-header">
+      <h2>{{ patient.firstName }} {{ patient.lastName }}</h2>
+      <p>{{ patient.identificationNumber }}</p>
+    </div>
+
+    <form [formGroup]="historyForm" (ngSubmit)="submitForm()">
+      
+      <div class="form-section">
+        <h3>Información Principal</h3>
+        
+        <div class="form-group">
+          <label for="reasonForConsultation">
+            Motivo de Consulta
+            <span class="required">*</span>
+          </label>
+          <textarea 
+            id="reasonForConsultation" 
+            formControlName="reasonForConsultation"
+            placeholder="Describe el motivo principal de la consulta..."
+            rows="3"
+            [class.has-error]="historyForm.get('reasonForConsultation')?.touched && historyForm.get('reasonForConsultation')?.invalid"></textarea>
+          <div class="error-message" *ngIf="historyForm.get('reasonForConsultation')?.touched && historyForm.get('reasonForConsultation')?.invalid">
+            El motivo de consulta es requerido
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="currentIllness">
+            Enfermedad Actual
+            <span class="required">*</span>
+          </label>
+          <textarea 
+            id="currentIllness" 
+            formControlName="currentIllness"
+            placeholder="Describe la enfermedad o condición actual..."
+            rows="3"
+            [class.has-error]="historyForm.get('currentIllness')?.touched && historyForm.get('currentIllness')?.invalid"></textarea>
+          <div class="error-message" *ngIf="historyForm.get('currentIllness')?.touched && historyForm.get('currentIllness')?.invalid">
+            La enfermedad actual es requerida
+          </div>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <h3>Antecedentes</h3>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label for="pastMedicalHistory">Antecedentes Médicos</label>
+            <textarea 
+              id="pastMedicalHistory" 
+              formControlName="pastMedicalHistory"
+              placeholder="Enfermedades o procedimientos anteriores..."
+              rows="2"></textarea>
+          </div>
+
+          <div class="form-group">
+            <label for="familyHistory">Antecedentes Familiares</label>
+            <textarea 
+              id="familyHistory" 
+              formControlName="familyHistory"
+              placeholder="Enfermedades hereditarias o relevantes..."
+              rows="2"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <h3>Medicamentos y Alergias</h3>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label for="medications">Medicamentos Actuales</label>
+            <textarea 
+              id="medications" 
+              formControlName="medications"
+              placeholder="Listado de medicamentos que toma regularmente..."
+              rows="2"></textarea>
+          </div>
+
+          <div class="form-group">
+            <label for="allergies">Alergias</label>
+            <textarea 
+              id="allergies" 
+              formControlName="allergies"
+              placeholder="Alergias conocidas..."
+              rows="2"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <h3>Historia Odontológica</h3>
+        
+        <div class="form-group">
+          <label for="dentalHistory">Antecedentes Odontológicos</label>
+          <textarea 
+            id="dentalHistory" 
+            formControlName="dentalHistory"
+            placeholder="Procedimientos dentales previos, implantes, etc..."
+            rows="3"></textarea>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <h3>Examen Físico</h3>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label for="extraoralExam">Examen Extraoral</label>
+            <textarea 
+              id="extraoralExam" 
+              formControlName="extraoralExam"
+              placeholder="Observaciones de estructura facial, simetría, etc..."
+              rows="2"></textarea>
+          </div>
+
+          <div class="form-group">
+            <label for="intraoralExam">Examen Intraoral</label>
+            <textarea 
+              id="intraoralExam" 
+              formControlName="intraoralExam"
+              placeholder="Estado de tejidos blandos, piezas dentales, etc..."
+              rows="2"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button 
+          type="submit" 
+          class="btn btn-primary"
+          [disabled]="historyForm.invalid || isLoadingForm">
+          <span *ngIf="!isLoadingForm">Guardar Cambios</span>
+          <span *ngIf="isLoadingForm">Guardando...</span>
+        </button>
+        <button 
+          type="button" 
+          class="btn btn-secondary"
+          (click)="cancel()"
+          [disabled]="isLoadingForm">
+          Cancelar
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

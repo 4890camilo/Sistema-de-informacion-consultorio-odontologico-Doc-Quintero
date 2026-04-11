@@ -1,0 +1,94 @@
+@import '../citas-shared.scss';
+
+.info-display {
+  background-color: #f9f9f9;
+  border-left: 4px solid $teal-mid;
+  margin-bottom: 2rem;
+}
+
+.info-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.info-item {
+  &.full {
+    grid-column: 1 / -1;
+  }
+
+  label {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #666;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 0.5rem;
+  }
+
+  p {
+    font-size: 1rem;
+    color: #333;
+    margin: 0;
+  }
+}
+
+.badge {
+  display: inline-block;
+  padding: 0.35rem 0.75rem;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  background-color: #e0e0e0;
+  color: #333;
+
+  &.badge-success {
+    background-color: #d4edda;
+    color: #155724;
+  }
+
+  &.badge-warning {
+    background-color: #fff3cd;
+    color: #856404;
+  }
+
+  &.badge-error {
+    background-color: #f8d7da;
+    color: #721c24;
+  }
+}
+
+.form-actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 2rem;
+  
+  .btn {
+    flex: 1;
+    min-height: 48px;
+    font-size: 1rem;
+    font-weight: 600;
+    
+    &:disabled {
+      cursor: default;
+      background-color: #ccc;
+      border-color: #ccc;
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .info-row {
+    grid-template-columns: 1fr;
+  }
+
+  .form-actions {
+    flex-direction: column;
+  }
+}

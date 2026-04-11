@@ -1,0 +1,177 @@
+<div class="page-container">
+  <div class="page-header">
+    <h1>Nuevo Paciente</h1>
+    <p>Completa los datos del paciente para registrarlo en el sistema</p>
+  </div>
+
+  <div class="form-card">
+    <form [formGroup]="patientForm" (ngSubmit)="onSubmit()" class="patient-form" novalidate>
+
+      <!-- Error Message -->
+      <div class="alert alert-error" *ngIf="errorMessage">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="1.4"/>
+          <path d="M8 5v3.5M8 11h.01" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+        {{ errorMessage }}
+      </div>
+
+      <!-- Success Message -->
+      <div class="alert alert-success" *ngIf="successMessage">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="1.4"/>
+          <path d="M5 8l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        {{ successMessage }}
+      </div>
+
+      <!-- Identity Section -->
+      <div class="form-section">
+        <h3>Identificación</h3>
+        <div class="form-row">
+          <div class="form-group" [class.has-error]="patientForm.get('identificationNumber')?.invalid && patientForm.get('identificationNumber')?.touched">
+            <label for="identificationNumber">Número de Identificación</label>
+            <input type="text" id="identificationNumber" formControlName="identificationNumber" placeholder="1234567890">
+            <span class="field-error" *ngIf="patientForm.get('identificationNumber')?.invalid && patientForm.get('identificationNumber')?.touched">
+              Requerido
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Personal Information Section -->
+      <div class="form-section">
+        <h3>Información Personal</h3>
+        
+        <div class="form-row">
+          <div class="form-group" [class.has-error]="patientForm.get('firstName')?.invalid && patientForm.get('firstName')?.touched">
+            <label for="firstName">Nombre</label>
+            <input type="text" id="firstName" formControlName="firstName" placeholder="Juan">
+            <span class="field-error" *ngIf="patientForm.get('firstName')?.invalid && patientForm.get('firstName')?.touched">
+              Requerido
+            </span>
+          </div>
+          
+          <div class="form-group" [class.has-error]="patientForm.get('lastName')?.invalid && patientForm.get('lastName')?.touched">
+            <label for="lastName">Apellido</label>
+            <input type="text" id="lastName" formControlName="lastName" placeholder="Pérez García">
+            <span class="field-error" *ngIf="patientForm.get('lastName')?.invalid && patientForm.get('lastName')?.touched">
+              Requerido
+            </span>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group" [class.has-error]="patientForm.get('birthDate')?.invalid && patientForm.get('birthDate')?.touched">
+            <label for="birthDate">Fecha de Nacimiento</label>
+            <input type="date" id="birthDate" formControlName="birthDate">
+            <span class="field-error" *ngIf="patientForm.get('birthDate')?.invalid && patientForm.get('birthDate')?.touched">
+              Requerida
+            </span>
+          </div>
+
+          <div class="form-group" [class.has-error]="patientForm.get('email')?.invalid && patientForm.get('email')?.touched">
+            <label for="email">Correo</label>
+            <input type="email" id="email" formControlName="email" placeholder="correo@ejemplo.com">
+            <span class="field-error" *ngIf="patientForm.get('email')?.invalid && patientForm.get('email')?.touched">
+              Correo inválido
+            </span>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="phone">Teléfono</label>
+            <input type="tel" id="phone" formControlName="phone" placeholder="+57 300 1234567">
+          </div>
+
+          <div class="form-group">
+            <label for="address">Dirección</label>
+            <input type="text" id="address" formControlName="address" placeholder="Calle 10 # 20-30">
+          </div>
+        </div>
+      </div>
+
+      <!-- Emergency Contact Section -->
+      <div class="form-section">
+        <h3>Contacto de Emergencia</h3>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="emergencyContactName">Nombre del Contacto</label>
+            <input type="text" id="emergencyContactName" formControlName="emergencyContactName" placeholder="María García">
+          </div>
+
+          <div class="form-group">
+            <label for="emergencyContactPhone">Teléfono del Contacto</label>
+            <input type="tel" id="emergencyContactPhone" formControlName="emergencyContactPhone" placeholder="+57 300 9876543">
+          </div>
+        </div>
+      </div>
+
+      <!-- Clinical Information Section -->
+      <div class="form-section">
+        <h3>Información Clínica</h3>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label for="bloodType">Tipo de Sangre</label>
+            <select id="bloodType" formControlName="bloodType" class="form-select">
+              <option value="">Seleccionar tipo de sangre</option>
+              <option value="O+">O+</option>
+              <option value="O-">O-</option>
+              <option value="A+">A+</option>
+              <option value="A-">A-</option>
+              <option value="B+">B+</option>
+              <option value="B-">B-</option>
+              <option value="AB+">AB+</option>
+              <option value="AB-">AB-</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="insurance">Aseguradora</label>
+            <input type="text" id="insurance" formControlName="insurance" placeholder="EPS o Seguros Médicos">
+          </div>
+
+          <div class="form-group">
+            <label for="insuranceNumber">Número de Póliza</label>
+            <input type="text" id="insuranceNumber" formControlName="insuranceNumber" placeholder="Número de afiliación">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="allergies">Alergias</label>
+            <textarea id="allergies" formControlName="allergies" placeholder="Describir alergias conocidas (medicamentos, alimentos, materiales, etc.)" rows="3"></textarea>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="chronicDiseases">Enfermedades Crónicas</label>
+            <textarea id="chronicDiseases" formControlName="chronicDiseases" placeholder="Enumerar enfermedades crónicas diagnosticadas" rows="3"></textarea>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="currentMedications">Medicamentos Actuales</label>
+            <textarea id="currentMedications" formControlName="currentMedications" placeholder="Detallar medicamentos en uso (nombre, dosis, frecuencia)" rows="3"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="form-actions">
+        <button type="button" class="btn btn-secondary" (click)="cancel()" [disabled]="isLoading">
+          Cancelar
+        </button>
+        <button type="submit" class="btn btn-primary" [disabled]="isLoading">
+          <span *ngIf="!isLoading">Registrar Paciente</span>
+          <span *ngIf="isLoading" class="spinner"></span>
+        </button>
+      </div>
+
+    </form>
+  </div>
+</div>

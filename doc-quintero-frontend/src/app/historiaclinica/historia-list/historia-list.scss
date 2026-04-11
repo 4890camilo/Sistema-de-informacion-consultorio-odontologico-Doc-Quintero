@@ -1,0 +1,215 @@
+@import '../historiaclinica-shared.scss';
+
+.patient-list-view {
+  margin-top: 2rem;
+}
+
+.patient-selector {
+  h3 {
+    font-size: 1.3rem;
+    margin-bottom: 1.5rem;
+    color: $teal-deep;
+  }
+}
+
+.patient-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.patient-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.25rem;
+  background: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 300ms ease;
+
+  &:hover {
+    border-color: $teal-mid;
+    box-shadow: 0 4px 12px rgba($teal-mid, 0.15);
+    transform: translateX(4px);
+  }
+
+  .patient-info {
+    flex: 1;
+
+    h4 {
+      margin: 0 0 0.5rem 0;
+      font-size: 1.05rem;
+      color: #333;
+    }
+
+    .patient-meta {
+      margin: 0;
+      font-size: 0.9rem;
+      color: #999;
+
+      span {
+        &.dot {
+          margin: 0 0.5rem;
+        }
+      }
+    }
+  }
+
+  .patient-arrow {
+    width: 20px;
+    height: 20px;
+    color: $teal-mid;
+    opacity: 0.7;
+  }
+}
+
+.patient-detail-view {
+  margin-top: 2rem;
+}
+
+.btn-back {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1rem;
+  background: transparent;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  cursor: pointer;
+  color: #666;
+  font-size: 0.95rem;
+  font-weight: 500;
+  transition: all 200ms ease;
+  margin-bottom: 1.5rem;
+
+  svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  &:hover {
+    border-color: $teal-mid;
+    color: $teal-mid;
+    background-color: rgba($teal-light, 0.1);
+  }
+}
+
+.patient-header {
+  padding: 1.5rem;
+  background: linear-gradient(135deg, $teal-deep, $teal-mid);
+  color: white;
+  border-radius: 8px;
+  margin-bottom: 2rem;
+
+  h2 {
+    margin: 0 0 0.5rem 0;
+    font-size: 1.8rem;
+  }
+
+  .patient-id {
+    margin: 0;
+    font-size: 0.95rem;
+    opacity: 0.9;
+  }
+}
+
+.history-card {
+  background: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 2rem;
+  margin-bottom: 2rem;
+}
+
+.history-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+  margin-bottom: 2rem;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.history-section {
+  &:not(:last-child) {
+    margin-bottom: 2rem;
+    padding-bottom: 2rem;
+    border-bottom: 1px solid #f0f0f0;
+  }
+
+  h3 {
+    font-size: 1rem;
+    color: $teal-deep;
+    margin: 0 0 0.75rem 0;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  p {
+    margin: 0;
+    color: #555;
+    line-height: 1.6;
+    white-space: pre-wrap;
+  }
+}
+
+.history-actions {
+  margin-top: 2rem;
+  padding-top: 2rem;
+  border-top: 1px solid #f0f0f0;
+  display: flex;
+  gap: 1rem;
+
+  .btn {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.75rem 1.5rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .patient-card {
+    padding: 1rem;
+
+    .patient-info h4 {
+      font-size: 1rem;
+    }
+  }
+
+  .patient-header {
+    h2 {
+      font-size: 1.5rem;
+    }
+  }
+
+  .history-card {
+    padding: 1.5rem;
+  }
+
+  .history-row {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .history-section {
+    &:not(:last-child) {
+      margin-bottom: 1rem;
+      padding-bottom: 1rem;
+    }
+  }
+
+  .history-actions {
+    flex-direction: column;
+
+    .btn {
+      width: 100%;
+      justify-content: center;
+    }
+  }
+}

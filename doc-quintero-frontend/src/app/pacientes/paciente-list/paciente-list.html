@@ -1,0 +1,100 @@
+<div class="page-container">
+  <div class="page-header">
+    <h1>Pacientes</h1>
+    <p>Gestiona el listado de pacientes del consultorio</p>
+  </div>
+
+  <div class="alert alert-error" *ngIf="errorMessage">
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+      <circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="1.4"/>
+      <path d="M8 5v3.5M8 11h.01" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+    </svg>
+    {{ errorMessage }}
+  </div>
+
+  <div class="list-container">
+    <div class="list-header">
+      <div class="search-box">
+        <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="9" cy="9" r="5" stroke="currentColor" stroke-width="1.5"/>
+          <path d="M14 14l4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+        <input 
+          type="text" 
+          [(ngModel)]="searchQuery" 
+          (input)="filterPatients()" 
+          placeholder="Buscar por nombre, cédula o email..."
+        >
+      </div>
+      <button class="btn btn-primary btn-add" (click)="createPatient()">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <path d="M8 3v10M3 8h10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Nuevo Paciente
+      </button>
+    </div>
+
+    <div class="loading-spinner" *ngIf="isLoading">
+      <div class="spinner"></div>
+      <p>Cargando pacientes...</p>
+    </div>
+
+    <div *ngIf="!isLoading">
+      <!-- Delete Confirmation Modal -->
+      <div class="modal-overlay" *ngIf="deleteConfirm" (click)="cancelDelete()">
+        <div class="modal-content" (click)="$event.stopPropagation()">
+          <h3>¿Eliminar paciente?</h3>
+          <p>¿Estás seguro de que deseas eliminar a <strong>{{ deleteConfirm.name }}</strong>? Esta acción no se puede deshacer.</p>
+          <div class="modal-actions">
+            <button class="btn btn-secondary" (click)="cancelDelete()">Cancelar</button>
+            <button class="btn btn-delete" (click)="deletePatient(deleteConfirm.id)">Eliminar</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Table -->
+      <table class="data-table" *ngIf="filteredPatients.length > 0; else emptyState">
+        <thead>
+          <tr>
+            <th>Cédula</th>
+            <th>Nombre Completo</th>
+            <th>Correo</th>
+            <th>Teléfono</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let patient of filteredPatients">
+            <td><span class="badge">{{ patient.identificationNumber }}</span></td>
+            <td>{{ patient.firstName }} {{ patient.lastName }}</td>
+            <td>{{ patient.email || '-' }}</td>
+            <td>{{ patient.phone || '-' }}</td>
+            <td>
+              <div class="table-actions">
+                <button class="btn-edit" (click)="editPatient(patient.id!)">Editar</button>
+                <button class="btn-delete" (click)="confirmDelete(patient.id!, patient.firstName + ' ' + patient.lastName)">Eliminar</button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <ng-template #emptyState>
+        <div class="empty-state">
+          <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="32" cy="28" r="10" stroke="currentColor" stroke-width="2"/>
+            <path d="M20 48c0-6.627 5.373-12 12-12s12 5.373 12 12" stroke="currentColor" stroke-width="2"/>
+          </svg>
+          <h3>{{ searchQuery.trim() ? 'Sin resultados' : 'No hay pacientes' }}</h3>
+          <p>{{ searchQuery.trim() ? 'No encontramos pacientes que coincidan con tu búsqueda' : 'Comienza creando un nuevo paciente' }}</p>
+          <button class="btn btn-primary" (click)="createPatient()" *ngIf="!searchQuery.trim()">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <path d="M8 3v10M3 8h10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Crear Paciente
+          </button>
+        </div>
+      </ng-template>
+    </div>
+  </div>
+</div>

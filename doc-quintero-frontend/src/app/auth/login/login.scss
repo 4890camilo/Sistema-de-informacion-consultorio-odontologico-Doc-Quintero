@@ -1,0 +1,331 @@
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,600;1,9..144,300&family=DM+Sans:wght@300;400;500&display=swap');
+ 
+// ── Variables ──────────────────────────────────────────────
+$teal-deep:    #0a4a4a;
+$teal-mid:     #0d6b6b;
+$teal-light:   #19a8a8;
+$teal-pale:    #e8f6f6;
+$accent:       #f0a500;
+$text-primary: #1a2e2e;
+$text-muted:   #6b8c8c;
+$error:        #d94a4a;
+$border:       #c8dede;
+$white:        #ffffff;
+ 
+// ── Wrapper ────────────────────────────────────────────────
+.login-wrapper {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  min-height: 100vh;
+  font-family: 'DM Sans', sans-serif;
+  background: $white;
+ 
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+  }
+}
+ 
+// ── Card (left panel) ──────────────────────────────────────
+.login-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 3rem 4rem;
+  max-width: 520px;
+  width: 100%;
+  margin: 0 auto;
+  animation: slideIn 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+ 
+  @media (max-width: 768px) {
+    padding: 2.5rem 1.75rem;
+    max-width: 100%;
+  }
+}
+ 
+// ── Brand ──────────────────────────────────────────────────
+.login-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-bottom: 3rem;
+  color: $teal-mid;
+ 
+  .brand-icon {
+    width: 32px;
+    height: 32px;
+    color: $teal-light;
+ 
+    svg { width: 100%; height: 100%; }
+  }
+ 
+  .brand-name {
+    font-family: 'Fraunces', serif;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: $teal-deep;
+    letter-spacing: -0.02em;
+  }
+}
+ 
+// ── Header ─────────────────────────────────────────────────
+.login-header {
+  margin-bottom: 2.25rem;
+ 
+  h1 {
+    font-family: 'Fraunces', serif;
+    font-size: 2.4rem;
+    font-weight: 300;
+    color: $text-primary;
+    line-height: 1.1;
+    letter-spacing: -0.03em;
+    margin: 0 0 0.5rem;
+  }
+ 
+  p {
+    font-size: 0.95rem;
+    color: $text-muted;
+    margin: 0;
+    font-weight: 300;
+  }
+}
+ 
+// ── Form ───────────────────────────────────────────────────
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+ 
+.field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+ 
+  label {
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: $text-primary;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+ 
+  .input-wrapper {
+    position: relative;
+ 
+    .input-icon {
+      position: absolute;
+      left: 0.9rem;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 16px;
+      height: 16px;
+      color: $text-muted;
+      pointer-events: none;
+      transition: color 0.2s;
+    }
+ 
+    input {
+      width: 100%;
+      padding: 0.8rem 0.9rem 0.8rem 2.5rem;
+      border: 1.5px solid $border;
+      border-radius: 10px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.95rem;
+      color: $text-primary;
+      background: $white;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      box-sizing: border-box;
+      outline: none;
+ 
+      &::placeholder { color: lighten($text-muted, 20%); }
+ 
+      &:focus {
+        border-color: $teal-light;
+        box-shadow: 0 0 0 3px rgba($teal-light, 0.12);
+ 
+        & + .input-icon { color: $teal-light; }
+      }
+    }
+ 
+    // Icon color on focus via sibling won't work in HTML order — use this trick
+    &:focus-within .input-icon {
+      color: $teal-light;
+    }
+  }
+ 
+  &.has-error {
+    .input-wrapper input {
+      border-color: $error;
+      &:focus { box-shadow: 0 0 0 3px rgba($error, 0.1); }
+    }
+    .input-icon { color: $error !important; }
+  }
+ 
+  .field-error {
+    font-size: 0.78rem;
+    color: $error;
+    font-weight: 400;
+  }
+}
+ 
+// ── Error banner ───────────────────────────────────────────
+.error-banner {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: lighten($error, 42%);
+  color: $error;
+  border: 1px solid lighten($error, 30%);
+  border-radius: 8px;
+  padding: 0.7rem 0.9rem;
+  font-size: 0.85rem;
+  font-weight: 400;
+ 
+  svg {
+    width: 15px;
+    height: 15px;
+    flex-shrink: 0;
+  }
+}
+ 
+// ── Submit button ──────────────────────────────────────────
+.btn-login {
+  margin-top: 0.5rem;
+  padding: 0.9rem;
+  background: $teal-mid;
+  color: $white;
+  border: none;
+  border-radius: 10px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+  letter-spacing: 0.01em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+ 
+  &:hover:not(:disabled) {
+    background: $teal-deep;
+    box-shadow: 0 6px 20px rgba($teal-mid, 0.3);
+    transform: translateY(-1px);
+  }
+ 
+  &:active:not(:disabled) {
+    transform: translateY(0);
+    box-shadow: none;
+  }
+ 
+  &:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+}
+ 
+// ── Spinner ────────────────────────────────────────────────
+.spinner {
+  width: 18px;
+  height: 18px;
+  border: 2px solid rgba($white, 0.3);
+  border-top-color: $white;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+ 
+// ── Register link ──────────────────────────────────────────
+.register-link {
+  margin-top: 1.75rem;
+  font-size: 0.88rem;
+  color: $text-muted;
+  text-align: center;
+ 
+  a {
+    color: $teal-mid;
+    font-weight: 500;
+    text-decoration: none;
+    border-bottom: 1px solid transparent;
+    transition: border-color 0.2s;
+ 
+    &:hover { border-bottom-color: $teal-mid; }
+  }
+}
+ 
+// ── Visual panel (right) ───────────────────────────────────
+.login-visual {
+  background: linear-gradient(145deg, $teal-deep 0%, $teal-mid 60%, $teal-light 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+ 
+  @media (max-width: 768px) { display: none; }
+ 
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at 70% 30%, rgba($teal-light, 0.25) 0%, transparent 60%);
+  }
+}
+ 
+.visual-content {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2rem;
+  color: rgba($white, 0.9);
+  text-align: center;
+  padding: 2rem;
+  z-index: 1;
+}
+ 
+.pulse-ring {
+  position: absolute;
+  border-radius: 50%;
+  border: 1px solid rgba($white, 0.15);
+  animation: pulse 3s ease-out infinite;
+ 
+  &.ring-1 { width: 160px; height: 160px; animation-delay: 0s; }
+  &.ring-2 { width: 240px; height: 240px; animation-delay: 0.8s; }
+  &.ring-3 { width: 320px; height: 320px; animation-delay: 1.6s; }
+}
+ 
+.visual-icon {
+  width: 80px;
+  height: 80px;
+  color: rgba($white, 0.85);
+  position: relative;
+  z-index: 1;
+ 
+  svg { width: 100%; height: 100%; }
+}
+ 
+.visual-tagline {
+  font-family: 'Fraunces', serif;
+  font-size: 1.5rem;
+  font-weight: 300;
+  line-height: 1.4;
+  color: rgba($white, 0.9);
+  margin: 0;
+  letter-spacing: -0.02em;
+}
+ 
+// ── Animations ─────────────────────────────────────────────
+@keyframes slideIn {
+  from { opacity: 0; transform: translateX(-24px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+ 
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+ 
+@keyframes pulse {
+  0%   { transform: scale(0.8); opacity: 0.6; }
+  70%  { transform: scale(1.4); opacity: 0; }
+  100% { opacity: 0; }
+}

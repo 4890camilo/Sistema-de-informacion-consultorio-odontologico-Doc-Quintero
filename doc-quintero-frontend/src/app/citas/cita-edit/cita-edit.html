@@ -1,0 +1,101 @@
+<div class="page-container">
+  <div class="page-header">
+    <h1>Reprogramar Cita</h1>
+    <p>Modifica la fecha y hora de la cita agendada</p>
+  </div>
+
+  <div class="alert alert-success" *ngIf="successMessage">
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+      <path d="M13.5 4.5L6 12L2.5 8.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    {{ successMessage }}
+  </div>
+
+  <div class="alert alert-error" *ngIf="errorMessage">
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+      <circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="1.4"/>
+      <path d="M8 5v3.5M8 11h.01" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+    </svg>
+    {{ errorMessage }}
+  </div>
+
+  <div class="loading-spinner" *ngIf="isLoadingPage">
+    <div class="spinner"></div>
+    <p>Cargando detalles de la cita...</p>
+  </div>
+
+  <div class="form-card" *ngIf="!isLoadingPage && appointment">
+    
+    <div class="form-section info-display">
+      <h3>Detalles de la Cita Actual</h3>
+      
+      <div class="info-row">
+        <div class="info-item">
+          <label>Paciente ID</label>
+          <p>{{ appointment.patientId }}</p>
+        </div>
+        <div class="info-item">
+          <label>Tipo de Cita</label>
+          <p><span class="badge">{{ appointment.type }}</span></p>
+        </div>
+      </div>
+
+      <div class="info-row">
+        <div class="info-item">
+          <label>Fecha Actual</label>
+          <p>{{ appointment.dateTime | date:'dd MMMM yyyy, HH:mm':'':'es' }}</p>
+        </div>
+        <div class="info-item">
+          <label>Estado</label>
+          <p><span class="badge" [class.badge-success]="appointment.status === 'CONFIRMADA'" [class.badge-warning]="appointment.status === 'PENDIENTE'" [class.badge-error]="appointment.status === 'CANCELADA'">{{ appointment.status }}</span></p>
+        </div>
+      </div>
+
+      <div *ngIf="appointment.notes" class="info-row">
+        <div class="info-item full">
+          <label>Notas</label>
+          <p>{{ appointment.notes }}</p>
+        </div>
+      </div>
+    </div>
+
+    <form [formGroup]="rescheduleForm" (ngSubmit)="onSubmit()">
+      
+      <div class="form-section">
+        <h3>Nueva Fecha y Hora</h3>
+        
+        <div class="form-group">
+          <label for="newDateTime">
+            Selecciona la nueva fecha y hora
+            <span class="required">*</span>
+          </label>
+          <input 
+            type="datetime-local" 
+            id="newDateTime" 
+            formControlName="newDateTime"
+            [class.has-error]="rescheduleForm.get('newDateTime')?.touched && rescheduleForm.get('newDateTime')?.invalid">
+          <div class="error-message" *ngIf="rescheduleForm.get('newDateTime')?.touched && rescheduleForm.get('newDateTime')?.invalid">
+            La nueva fecha y hora son requeridas
+          </div>
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button 
+          type="submit" 
+          class="btn btn-primary"
+          [disabled]="rescheduleForm.invalid || isLoadingForm">
+          <span *ngIf="!isLoadingForm">Reprogramar Cita</span>
+          <span *ngIf="isLoadingForm">Reprogramando...</span>
+        </button>
+        <button 
+          type="button" 
+          class="btn btn-secondary"
+          (click)="cancel()"
+          [disabled]="isLoadingForm">
+          Cancelar
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

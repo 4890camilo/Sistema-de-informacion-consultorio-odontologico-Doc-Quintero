@@ -1,0 +1,500 @@
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,600&family=DM+Sans:wght@300;400;500&display=swap');
+
+// ── Variables ──────────────────────────────────────────────
+$teal-deep:    #0a4a4a;
+$teal-mid:     #0d6b6b;
+$teal-light:   #19a8a8;
+$teal-pale:    #e8f6f6;
+$accent:       #f0a500;
+$text-primary: #1a2e2e;
+$text-muted:   #6b8c8c;
+$error:        #d94a4a;
+$success:      #2d8659;
+$border:       #c8dede;
+$white:        #ffffff;
+$bg-light:     #f5fafa;
+
+// ── Page Container ────────────────────────────────────────
+.page-container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 2rem;
+  font-family: 'DM Sans', sans-serif;
+
+  @media (max-width: 768px) {
+    padding: 1.5rem;
+  }
+}
+
+// ── Page Header ────────────────────────────────────────────
+.page-header {
+  margin-bottom: 2rem;
+
+  h1 {
+    font-family: 'Fraunces', serif;
+    font-size: 2rem;
+    font-weight: 600;
+    color: $teal-deep;
+    margin: 0 0 0.5rem 0;
+    letter-spacing: -0.02em;
+  }
+
+  p {
+    font-size: 0.95rem;
+    color: $text-muted;
+    margin: 0;
+    font-weight: 300;
+  }
+}
+
+// ── Form Card ──────────────────────────────────────────────
+.form-card {
+  background: $white;
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: 0 2px 8px rgba($teal-deep, 0.08);
+  animation: slideIn 0.5s ease-out;
+
+  @media (max-width: 768px) {
+    padding: 1.5rem;
+  }
+}
+
+// ── Patient Form ───────────────────────────────────────────
+.patient-form {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+// ── Form Section ──────────────────────────────────────────
+.form-section {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid $border;
+
+  &:last-of-type {
+    border-bottom: none;
+    padding-bottom: 0;
+  }
+
+  h3 {
+    font-family: 'Fraunces', serif;
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: $teal-mid;
+    margin: 0;
+    letter-spacing: -0.01em;
+  }
+}
+
+// ── Form Row ──────────────────────────────────────────────
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+// ── Form Group ────────────────────────────────────────────
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+
+  label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: $text-primary;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  input,
+  textarea {
+    padding: 0.8rem;
+    border: 1px solid $border;
+    border-radius: 8px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.95rem;
+    color: $text-primary;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    background: $white;
+
+    &:focus {
+      outline: none;
+      border-color: $teal-light;
+      box-shadow: 0 0 0 3px rgba($teal-light, 0.1);
+    }
+
+    &:disabled {
+      background: $bg-light;
+      color: $text-muted;
+      cursor: not-allowed;
+    }
+
+    &::placeholder {
+      color: $text-muted;
+    }
+  }
+
+  textarea {
+    resize: vertical;
+    min-height: 100px;
+    font-family: 'DM Sans', sans-serif;
+  }
+
+  &.has-error {
+    input,
+    textarea {
+      border-color: $error;
+      box-shadow: 0 0 0 3px rgba($error, 0.08);
+    }
+  }
+}
+
+// ── Field Error ────────────────────────────────────────────
+.field-error {
+  font-size: 0.78rem;
+  color: $error;
+  font-weight: 500;
+  margin-top: -0.3rem;
+}
+
+// ── Alerts ────────────────────────────────────────────────
+.alert {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 1rem 1.25rem;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  line-height: 1.5;
+  border-left: 4px solid;
+  animation: slideIn 0.4s ease-out;
+
+  svg {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+    margin-top: 0.1rem;
+  }
+
+  &.alert-error {
+    background: rgba($error, 0.08);
+    color: $error;
+    border-left-color: $error;
+  }
+
+  &.alert-success {
+    background: rgba($success, 0.08);
+    color: $success;
+    border-left-color: $success;
+  }
+}
+
+// ── Form Actions ──────────────────────────────────────────
+.form-actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+  justify-content: flex-end;
+
+  @media (max-width: 768px) {
+    flex-direction: column-reverse;
+  }
+}
+
+// ── Buttons ────────────────────────────────────────────────
+.btn {
+  padding: 0.9rem 2rem;
+  border: none;
+  border-radius: 10px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+  letter-spacing: 0.01em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 48px;
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none !important;
+  }
+
+  svg {
+    width: 16px;
+    height: 16px;
+  }
+}
+
+.btn-primary {
+  background: $teal-mid;
+  color: $white;
+
+  &:hover:not(:disabled) {
+    background: $teal-deep;
+    box-shadow: 0 6px 20px rgba($teal-mid, 0.3);
+    transform: translateY(-2px);
+  }
+
+  &:active:not(:disabled) {
+    transform: translateY(0);
+    box-shadow: none;
+  }
+}
+
+.btn-secondary {
+  background: transparent;
+  color: $text-muted;
+  border: 1.5px solid $border;
+
+  &:hover:not(:disabled) {
+    background: $bg-light;
+    border-color: $teal-light;
+    color: $teal-mid;
+  }
+
+  &:active:not(:disabled) {
+    background: $white;
+  }
+}
+
+// ── Spinner ────────────────────────────────────────────────
+.spinner {
+  width: 18px;
+  height: 18px;
+  border: 2px solid rgba($teal-mid, 0.2);
+  border-top-color: $teal-mid;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+// ── Loading Spinner ───────────────────────────────────────
+.loading-spinner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  padding: 3rem 2rem;
+  text-align: center;
+
+  .spinner {
+    width: 40px;
+    height: 40px;
+    border-width: 3px;
+  }
+
+  p {
+    color: $text-muted;
+    margin: 0;
+  }
+}
+
+// ── List Container ────────────────────────────────────────
+.list-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+// ── List Header ────────────────────────────────────────────
+.list-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+
+  .search-box {
+    flex: 1;
+    min-width: 250px;
+    position: relative;
+
+    input {
+      width: 100%;
+      padding: 0.8rem 1rem 0.8rem 2.5rem;
+      border: 1px solid $border;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      transition: border-color 0.2s;
+
+      &:focus {
+        outline: none;
+        border-color: $teal-light;
+      }
+
+      &::placeholder {
+        color: $text-muted;
+      }
+    }
+
+    svg {
+      position: absolute;
+      left: 0.8rem;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 18px;
+      height: 18px;
+      color: $text-muted;
+    }
+  }
+
+  .btn-add {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+}
+
+// ── Table ──────────────────────────────────────────────────
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: $white;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba($teal-deep, 0.08);
+
+  thead {
+    background: $teal-pale;
+    border-bottom: 2px solid $border;
+
+    th {
+      padding: 1.25rem 1rem;
+      text-align: left;
+      font-weight: 600;
+      color: $teal-deep;
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+  }
+
+  tbody {
+    tr {
+      border-bottom: 1px solid $border;
+      transition: background 0.2s;
+
+      &:hover {
+        background: $bg-light;
+      }
+
+      td {
+        padding: 1.25rem 1rem;
+        color: $text-primary;
+        font-size: 0.95rem;
+      }
+
+      &:last-child {
+        border-bottom: none;
+      }
+    }
+  }
+
+  .table-actions {
+    display: flex;
+    gap: 0.5rem;
+
+    button {
+      padding: 0.5rem 1rem;
+      border: none;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+
+      &.btn-edit {
+        background: rgba($teal-light, 0.2);
+        color: $teal-mid;
+
+        &:hover {
+          background: rgba($teal-light, 0.3);
+        }
+      }
+
+      &.btn-delete {
+        background: rgba($error, 0.2);
+        color: $error;
+
+        &:hover {
+          background: rgba($error, 0.3);
+        }
+      }
+
+      &.btn-view {
+        background: rgba($accent, 0.2);
+        color: $accent;
+
+        &:hover {
+          background: rgba($accent, 0.3);
+        }
+      }
+    }
+  }
+}
+
+// ── Empty State ────────────────────────────────────────────
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 2rem;
+  text-align: center;
+  background: $white;
+  border-radius: 12px;
+  border: 2px dashed $border;
+
+  svg {
+    width: 64px;
+    height: 64px;
+    color: $text-muted;
+    margin-bottom: 1rem;
+    opacity: 0.5;
+  }
+
+  h3 {
+    font-size: 1.2rem;
+    color: $text-primary;
+    margin: 0 0 0.5rem 0;
+  }
+
+  p {
+    color: $text-muted;
+    margin: 0 0 1.5rem 0;
+    font-size: 0.95rem;
+  }
+}
+
+// ── Animations ────────────────────────────────────────────
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
