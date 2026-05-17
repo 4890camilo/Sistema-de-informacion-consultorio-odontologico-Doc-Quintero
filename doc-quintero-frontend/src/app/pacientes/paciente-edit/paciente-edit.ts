@@ -5,7 +5,7 @@ import { PatientResponse } from '../../models/patient.model';
 import { Router, ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import { takeUntil, finalize } from 'rxjs/operators';
 
 @Component({
   selector: 'app-paciente-edit',
@@ -19,8 +19,8 @@ export class PacienteEditComponent implements OnInit, OnDestroy {
   isLoading: boolean = false;
   isSaving: boolean = false;
   errorMessage: string = '';
-  successMessage: string = '';
   patientId: string = '';
+  activeTab: string = 'basicos';
   private destroy$ = new Subject<void>();
 
   constructor(
@@ -30,71 +30,76 @@ export class PacienteEditComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute
   ) {
     this.patientForm = this.fb.group({
-      identificationNumber: ['', Validators.required],
+      // Identidad
+      identificationNumber: [{ value: '', disabled: true }],
+      tipoDocumento: ['CC', Validators.required],
       firstName: ['', Validators.required],
       lastName: ['', Validators.required],
-      birthDate: ['', Validators.required],
-      phone: [''],
-      email: ['', [Validators.email]],
+      nombreSocial: [''],
+      birthDate: [{ value: '', disabled: true }],
+      sexo: ['Otro'],
+      genero: [''],
+      
+      // Contacto
+      email: ['', [Validators.required, Validators.email]],
+      phone: ['', Validators.required],
+      telefonoFijo: [''],
       address: [''],
-      bloodType: [''],
-      allergies: [''],
-      chronicDiseases: [''],
-      currentMedications: [''],
+      ciudad: [''],
+      departamento: [''],
+      
+      // Adicionales
+      ocupacion: [''],
+      empleador: [''],
+      tipoPaciente: ['Particular'],
+      comoNosConocio: [''],
       insurance: [''],
       insuranceNumber: [''],
-      emergencyContactName: [''],
-      emergencyContactPhone: ['']
+      observaciones: [''],
+      
+      // Acudiente
+      acudiente: this.fb.group({
+        nombre: [''],
+        identificacion: [''],
+        parentesco: [''],
+        telefono: ['']
+      })
     });
   }
 
   ngOnInit(): void {
     this.route.params.pipe(takeUntil(this.destroy$)).subscribe((params: any) => {
       this.patientId = params['id'];
-      if (this.patientId) {
-        this.loadPatient();
-      }
+      if (this.patientId) this.loadPatient();
     });
+  }
+
+  setTab(tab: string): void {
+    this.activeTab = tab;
   }
 
   loadPatient(): void {
     this.isLoading = true;
     this.patientService.getPatientById(this.patientId)
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntil(this.destroy$), finalize(() => this.isLoading = false))
       .subscribe({
         next: (patient: PatientResponse) => {
           this.patientForm.patchValue(patient);
-          this.isLoading = false;
         },
-        error: (error: any) => {
-          this.isLoading = false;
-          this.errorMessage = 'Error al cargar el paciente';
-        }
+        error: () => this.errorMessage = 'Error al cargar el paciente.'
       });
   }
 
   onSubmit(): void {
-    if (this.patientForm.valid) {
-      this.isSaving = true;
-      this.errorMessage = '';
-      this.successMessage = '';
+    if (this.patientForm.invalid) return;
 
-      this.patientService.updatePatient(this.patientId, this.patientForm.value)
-        .pipe(takeUntil(this.destroy$))
-        .subscribe({
-          next: (response: PatientResponse) => {
-            this.successMessage = 'Paciente actualizado exitosamente';
-            this.isSaving = false;
-            setTimeout(() => {
-              this.router.navigate(['/pacientes/list']);
-            }, 1500);
-          },
-          error: (error: any) => {
-            this.isSaving = false;
-            this.errorMessage = error?.error?.message || 'Error al actualizar el paciente';
-          }
-        });
-    }
+    this.isSaving = true;
+    this.patientService.updatePatient(this.patientId, this.patientForm.getRawValue())
+      .pipe(takeUntil(this.destroy$), finalize(() => this.isSaving = false))
+      .subscribe({
+        next: () => this.router.navigate(['/pacientes/list']),
+        error: (error: any) => this.errorMessage = error?.error?.message || 'Error al actualizar el paciente'
+      });
   }
 
   cancel(): void {

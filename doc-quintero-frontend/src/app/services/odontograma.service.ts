@@ -7,23 +7,24 @@ import { OdontogramaRequest, OdontogramaResponse } from '../models/odontograma.m
   providedIn: 'root'
 })
 export class OdontogramaService {
-  private apiUrl = 'http://localhost:8080/api/odontogram';
+  private baseUrl = 'http://localhost:8080/api/historia-clinica';
 
   constructor(private http: HttpClient) {}
 
-  getOdontograma(patientId: string): Observable<OdontogramaResponse | null> {
-    return this.http.get<OdontogramaResponse | null>(`${this.apiUrl}/${patientId}`);
+  getOdontograma(hcId: string): Observable<OdontogramaResponse | null> {
+    return this.http.get<OdontogramaResponse | null>(`${this.baseUrl}/${hcId}/odontograma/actual`);
   }
 
-  createOdontograma(odontograma: OdontogramaRequest): Observable<OdontogramaResponse> {
-    return this.http.post<OdontogramaResponse>(this.apiUrl, odontograma);
+  createOdontograma(hcId: string, odontograma: OdontogramaRequest): Observable<OdontogramaResponse> {
+    return this.http.post<OdontogramaResponse>(`${this.baseUrl}/${hcId}/odontograma`, odontograma);
   }
 
-  updateOdontograma(id: string, odontograma: OdontogramaRequest): Observable<OdontogramaResponse> {
-    return this.http.put<OdontogramaResponse>(`${this.apiUrl}/${id}`, odontograma);
+  updateOdontograma(hcId: string, odontograma: OdontogramaRequest): Observable<OdontogramaResponse> {
+    // In new system, we just create a new version
+    return this.http.post<OdontogramaResponse>(`${this.baseUrl}/${hcId}/odontograma`, odontograma);
   }
 
-  deleteOdontograma(id: string): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/${id}`);
+  deleteOdontograma(oid: string): Observable<void> {
+    return this.http.patch<void>(`http://localhost:8080/api/historia-clinica/odontograma/${oid}/anular`, {});
   }
 }

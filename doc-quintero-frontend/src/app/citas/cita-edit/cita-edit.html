@@ -32,18 +32,18 @@
       <div class="info-row">
         <div class="info-item">
           <label>Paciente ID</label>
-          <p>{{ appointment.patientId }}</p>
+          <p>{{ appointment.pacienteId }}</p>
         </div>
         <div class="info-item">
           <label>Tipo de Cita</label>
-          <p><span class="badge">{{ appointment.type }}</span></p>
+          <p><span class="badge">{{ appointment.tipo }}</span></p>
         </div>
       </div>
 
       <div class="info-row">
         <div class="info-item">
           <label>Fecha Actual</label>
-          <p>{{ appointment.dateTime | date:'dd MMMM yyyy, HH:mm':'':'es' }}</p>
+          <p>{{ appointment.fechaHora | date:'dd MMMM yyyy, HH:mm':'':'es' }}</p>
         </div>
         <div class="info-item">
           <label>Estado</label>

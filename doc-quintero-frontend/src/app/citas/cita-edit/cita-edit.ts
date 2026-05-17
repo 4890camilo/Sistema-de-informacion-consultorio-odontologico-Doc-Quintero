@@ -5,7 +5,7 @@ import { AppointmentResponse } from '../../models/appointment.model';
 import { Router, ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import { takeUntil, finalize } from 'rxjs/operators';
 
 @Component({
   selector: 'app-cita-edit',
@@ -48,17 +48,18 @@ export class CitaEditComponent implements OnInit, OnDestroy {
   loadAppointment(): void {
     this.isLoadingPage = true;
     this.appointmentService.getAllAppointments()
-      .pipe(takeUntil(this.destroy$))
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => { this.isLoadingPage = false; })
+      )
       .subscribe({
         next: (appointments: any[]) => {
           this.appointment = appointments.find(a => a.id === this.appointmentId) || null;
           if (this.appointment) {
-            this.rescheduleForm.patchValue({ newDateTime: this.appointment.dateTime });
+            this.rescheduleForm.patchValue({ newDateTime: this.appointment.fechaHora });
           }
-          this.isLoadingPage = false;
         },
         error: (error: any) => {
-          this.isLoadingPage = false;
           this.errorMessage = 'Error al cargar la cita. Por favor intenta nuevamente.';
           console.error('Error loading appointment', error);
         }
@@ -70,14 +71,16 @@ export class CitaEditComponent implements OnInit, OnDestroy {
       this.isLoadingForm = true;
       this.errorMessage = '';
       this.appointmentService.rescheduleAppointment(this.appointmentId, this.rescheduleForm.value.newDateTime)
-        .pipe(takeUntil(this.destroy$))
+        .pipe(
+          takeUntil(this.destroy$),
+          finalize(() => { this.isLoadingForm = false; })
+        )
         .subscribe({
           next: () => {
             this.successMessage = 'Cita reprogramada exitosamente. Redirigiendo...';
             setTimeout(() => this.router.navigate(['/citas/list']), 1500);
           },
           error: (error: any) => {
-            this.isLoadingForm = false;
             this.errorMessage = 'Error al reprogramar la cita. Por favor intenta nuevamente.';
             console.error('Error rescheduling appointment', error);
           }

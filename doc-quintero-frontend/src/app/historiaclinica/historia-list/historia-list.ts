@@ -6,7 +6,7 @@ import { MedicalHistoryResponse } from '../../models/medical-history.model';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import { takeUntil, finalize } from 'rxjs/operators';
 
 @Component({
   selector: 'app-historia-list',
@@ -42,14 +42,15 @@ export class HistoriaListComponent implements OnInit, OnDestroy {
   loadPatients(): void {
     this.isLoadingPatients = true;
     this.patientService.getAllPatients()
-      .pipe(takeUntil(this.destroy$))
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => { this.isLoadingPatients = false; })
+      )
       .subscribe({
         next: (data: PatientResponse[]) => {
           this.patients = data;
-          this.isLoadingPatients = false;
         },
         error: (error: any) => {
-          this.isLoadingPatients = false;
           this.errorMessage = 'Error al cargar pacientes';
           console.error('Error loading patients', error);
         }
@@ -65,19 +66,19 @@ export class HistoriaListComponent implements OnInit, OnDestroy {
     this.isLoadingHistory = true;
     this.errorMessage = '';
     this.medicalHistoryService.getMedicalHistory(patientId)
-      .pipe(takeUntil(this.destroy$))
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => { this.isLoadingHistory = false; })
+      )
       .subscribe({
         next: (data: MedicalHistoryResponse | null) => {
           this.medicalHistory = data || null;
-          this.isLoadingHistory = false;
         },
         error: (error: any) => {
-          this.isLoadingHistory = false;
-          if (error.status === 404) {
+          if (error.status === 404 || error.status === 204) {
             this.medicalHistory = null;
           } else {
-            this.errorMessage = 'Error al cargar historia clínica';
-            console.error('Error loading medical history', error);
+            this.errorMessage = 'Ocurrió un error al cargar la información. Intenta de nuevo.';
           }
         }
       });

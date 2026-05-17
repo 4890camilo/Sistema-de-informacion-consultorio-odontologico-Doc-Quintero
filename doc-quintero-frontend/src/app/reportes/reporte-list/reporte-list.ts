@@ -2,9 +2,9 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ReportService } from '../../services/report.service';
-import { AppointmentReportItem } from '../../models/appointment.model';
+import { AppointmentReportItem } from '../../models/report.model';
 import { Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import { takeUntil, finalize } from 'rxjs/operators';
 
 interface ReportSummary {
   totalAppointments: number;
@@ -57,15 +57,16 @@ export class ReporteListComponent implements OnInit, OnDestroy {
       const { startDate, endDate } = this.reportForm.value;
       
       this.reportService.getAppointmentsReport(startDate, endDate)
-        .pipe(takeUntil(this.destroy$))
+        .pipe(
+          takeUntil(this.destroy$),
+          finalize(() => { this.isLoadingReport = false; })
+        )
         .subscribe({
           next: (data: AppointmentReportItem[]) => {
             this.appointments = data;
             this.calculateSummary();
-            this.isLoadingReport = false;
           },
           error: (error: any) => {
-            this.isLoadingReport = false;
             this.errorMessage = 'Error al generar reporte. Por favor intenta nuevamente.';
             console.error('Error generating report:', error);
           },
@@ -96,15 +97,16 @@ export class ReporteListComponent implements OnInit, OnDestroy {
     const { startDate, endDate } = this.reportForm.value;
     
     this.reportService.exportReportAsCSV(startDate, endDate)
-      .pipe(takeUntil(this.destroy$))
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => { this.isLoadingExport = false; })
+      )
       .subscribe({
         next: (blob) => {
-          this.isLoadingExport = false;
           this.downloadFile(blob, `reporte-citas-${startDate}-${endDate}.csv`);
           this.successMessage = 'Reporte exportado exitosamente';
         },
         error: (error) => {
-          this.isLoadingExport = false;
           this.errorMessage = 'Error al exportar reporte';
           console.error('Error exporting report:', error);
         },

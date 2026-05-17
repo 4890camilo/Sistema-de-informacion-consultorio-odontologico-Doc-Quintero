@@ -7,23 +7,24 @@ import { PeriodontogramaRequest, PeriodontogramaResponse } from '../models/perio
   providedIn: 'root'
 })
 export class PeriodontogramaService {
-  private apiUrl = 'http://localhost:8080/api/periodontogram';
+  private baseUrl = 'http://localhost:8080/api/historia-clinica';
 
   constructor(private http: HttpClient) {}
 
-  getPeriodontograma(patientId: string): Observable<PeriodontogramaResponse | null> {
-    return this.http.get<PeriodontogramaResponse | null>(`${this.apiUrl}/${patientId}`);
+  getPeriodontograma(hcId: string): Observable<PeriodontogramaResponse | null> {
+    return this.http.get<PeriodontogramaResponse | null>(`${this.baseUrl}/${hcId}/periodontograma/actual`);
   }
 
-  createPeriodontograma(periodontograma: PeriodontogramaRequest): Observable<PeriodontogramaResponse> {
-    return this.http.post<PeriodontogramaResponse>(this.apiUrl, periodontograma);
+  createPeriodontograma(hcId: string, periodontograma: PeriodontogramaRequest): Observable<PeriodontogramaResponse> {
+    return this.http.post<PeriodontogramaResponse>(`${this.baseUrl}/${hcId}/periodontograma`, periodontograma);
   }
 
-  updatePeriodontograma(id: string, periodontograma: PeriodontogramaRequest): Observable<PeriodontogramaResponse> {
-    return this.http.put<PeriodontogramaResponse>(`${this.apiUrl}/${id}`, periodontograma);
+  updatePeriodontograma(hcId: string, periodontograma: PeriodontogramaRequest): Observable<PeriodontogramaResponse> {
+    // In new system, we just create a new control
+    return this.http.post<PeriodontogramaResponse>(`${this.baseUrl}/${hcId}/periodontograma`, periodontograma);
   }
 
-  deletePeriodontograma(id: string): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/${id}`);
+  deletePeriodontograma(pid: string): Observable<void> {
+    return this.http.patch<void>(`http://localhost:8080/api/historia-clinica/periodontograma/${pid}/anular`, {});
   }
 }

@@ -7,7 +7,7 @@ import { MedicalHistoryResponse } from '../../models/medical-history.model';
 import { Router, ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import { takeUntil, finalize } from 'rxjs/operators';
 
 @Component({
   selector: 'app-historia-edit',
@@ -74,11 +74,13 @@ export class HistoriaEditComponent implements OnInit, OnDestroy {
   loadPatient(): Promise<void> {
     return new Promise((resolve, reject) => {
       this.patientService.getPatientById(this.patientId)
-        .pipe(takeUntil(this.destroy$))
+        .pipe(
+          takeUntil(this.destroy$),
+          finalize(() => { resolve(); })
+        )
         .subscribe({
           next: (data: PatientResponse) => {
             this.patient = data;
-            resolve();
           },
           error: (error: any) => {
             console.error('Error loading patient', error);
@@ -91,14 +93,16 @@ export class HistoriaEditComponent implements OnInit, OnDestroy {
   loadMedicalHistory(): Promise<void> {
     return new Promise((resolve, reject) => {
       this.medicalHistoryService.getMedicalHistory(this.patientId)
-        .pipe(takeUntil(this.destroy$))
+        .pipe(
+          takeUntil(this.destroy$),
+          finalize(() => { resolve(); })
+        )
         .subscribe({
           next: (data: MedicalHistoryResponse | null) => {
             if (data) {
               this.medicalHistory = data;
               this.historyForm.patchValue(data);
             }
-            resolve();
           },
           error: (error: any) => {
             console.error('Error loading medical history', error);
@@ -113,14 +117,16 @@ export class HistoriaEditComponent implements OnInit, OnDestroy {
       this.isLoadingForm = true;
       this.errorMessage = '';
       this.medicalHistoryService.updateMedicalHistory(this.patientId, this.historyForm.value)
-        .pipe(takeUntil(this.destroy$))
+        .pipe(
+          takeUntil(this.destroy$),
+          finalize(() => { this.isLoadingForm = false; })
+        )
         .subscribe({
           next: (data: MedicalHistoryResponse) => {
             this.successMessage = 'Historia clínica actualizada exitosamente. Redirigiendo...';
             setTimeout(() => this.router.navigate(['/historiaclinica/list']), 1500);
           },
           error: (error: any) => {
-            this.isLoadingForm = false;
             this.errorMessage = 'Error al actualizar historia clínica. Por favor intenta nuevamente.';
             console.error('Error updating medical history', error);
           }

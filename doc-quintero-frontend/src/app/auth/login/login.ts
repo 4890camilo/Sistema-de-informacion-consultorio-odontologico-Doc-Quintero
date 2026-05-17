@@ -3,6 +3,7 @@ import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angula
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../auth';
 import { CommonModule } from '@angular/common';
+import { finalize } from 'rxjs/operators';
  
 @Component({
   selector: 'app-login',
@@ -31,29 +32,28 @@ export class LoginComponent {
       this.isLoading = true;
       this.errorMessage = '';
  
-      this.authService.login(this.loginForm.value).subscribe({
-        next: (response) => {
-          this.authService.saveToken(response.token);
-          this.authService.saveRoles(response.roles || []);
+      this.authService.login(this.loginForm.value)
+        .pipe(finalize(() => { this.isLoading = false; }))
+        .subscribe({
+          next: (response) => {
+            this.authService.saveToken(response.token);
+            this.authService.saveRoles(response.roles || []);
 
-          const roles = response.roles || [];
-          if (roles.includes('ADMINISTRADOR')) {
-            this.router.navigate(['/pacientes/list']);
-          } else if (roles.includes('AUXILIAR')) {
-            this.router.navigate(['/citas/list']);
-          } else if (roles.includes('ODONTOLOGO')) {
-            this.router.navigate(['/historiaclinica/list']);
-          } else {
-            this.router.navigate(['/pacientes/list']);
+            const roles = response.roles || [];
+            if (roles.includes('ADMINISTRADOR')) {
+              this.router.navigate(['/pacientes/list']);
+            } else if (roles.includes('AUXILIAR')) {
+              this.router.navigate(['/citas/list']);
+            } else if (roles.includes('ODONTOLOGO')) {
+              this.router.navigate(['/historiaclinica/list']);
+            } else {
+              this.router.navigate(['/pacientes/list']);
+            }
+          },
+          error: (error) => {
+            this.errorMessage = 'Credenciales inválidas. Inténtalo de nuevo.';
           }
-
-          this.isLoading = false;
-        },
-        error: (error) => {
-          this.isLoading = false;
-          this.errorMessage = 'Credenciales inválidas. Inténtalo de nuevo.';
-        }
-      });
+        });
     }
   }
 }

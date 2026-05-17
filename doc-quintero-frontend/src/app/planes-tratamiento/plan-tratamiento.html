@@ -1,0 +1,78 @@
+<div class="page-container">
+  <div class="page-header">
+    <div class="page-header-text">
+      <h1>Nuevo Plan de Tratamiento</h1>
+      <p>Presupuesto y Planificación Clínica</p>
+    </div>
+  </div>
+
+  <div class="form-container" style="max-width: 1000px;">
+    <form [formGroup]="planForm" (ngSubmit)="onSubmit()" class="clinical-form">
+      
+      <div class="form-section">
+        <div class="field-group">
+          <label>Nombre del Plan *</label>
+          <input type="text" formControlName="nombre" placeholder="Ej: Fase Inicial / Ortodoncia">
+        </div>
+      </div>
+
+      <div class="form-section">
+        <h3>Detalle de Prestaciones</h3>
+        <table class="treatment-table">
+          <thead>
+            <tr>
+              <th>Procedimiento</th>
+              <th width="150">Valor</th>
+              <th>Observaciones</th>
+              <th width="50"></th>
+            </tr>
+          </thead>
+          <tbody formArrayName="prestaciones">
+            <tr *ngFor="let p of prestaciones.controls; let i=index" [formGroupName]="i">
+              <td>
+                <select formControlName="codigo" (change)="onProcedimientoChange(i)">
+                  <option value="">Seleccione...</option>
+                  <option *ngFor="let item of procedimientosDisponibles" [value]="item.codigo">
+                    {{ item.nombre }}
+                  </option>
+                </select>
+              </td>
+              <td>
+                <input type="number" formControlName="valor" (input)="calcularTotal()">
+              </td>
+              <td>
+                <input type="text" formControlName="observaciones">
+              </td>
+              <td>
+                <button type="button" class="btn-icon-error" (click)="removePrestacion(i)">&times;</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        
+        <button type="button" class="btn btn-secondary mt-4" (click)="addPrestacion()">
+          + Agregar Procedimiento
+        </button>
+      </div>
+
+      <div class="form-section budget-summary">
+        <div class="summary-row">
+          <span>Descuento Aplicado:</span>
+          <input type="number" formControlName="descuento" (input)="calcularTotal()">
+        </div>
+        <div class="summary-row total">
+          <span>TOTAL FINAL:</span>
+          <span>$ {{ planForm.get('totalFinal')?.value | number }}</span>
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button type="button" class="btn btn-secondary" (click)="router.navigate(['/pacientes/list'])">Cancelar</button>
+        <button type="submit" class="btn btn-primary" [disabled]="isLoading">
+          <span *ngIf="!isLoading">Crear Plan y Presupuesto</span>
+          <span *ngIf="isLoading" class="spinner"></span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

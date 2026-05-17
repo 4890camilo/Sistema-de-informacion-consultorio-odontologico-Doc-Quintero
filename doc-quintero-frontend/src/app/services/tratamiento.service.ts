@@ -7,7 +7,7 @@ import { TratamientoRequest, TratamientoResponse, TratamientoListItem } from '..
   providedIn: 'root'
 })
 export class TratamientoService {
-  private apiUrl = 'http://localhost:8080/api/treatment';
+  private apiUrl = 'http://localhost:8080/api/planes-tratamiento';
 
   constructor(private http: HttpClient) {}
 

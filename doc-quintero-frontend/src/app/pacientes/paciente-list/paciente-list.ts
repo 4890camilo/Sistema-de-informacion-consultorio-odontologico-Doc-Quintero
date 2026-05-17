@@ -4,8 +4,8 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
-
+import { takeUntil, finalize } from 'rxjs/operators';
+ 
 @Component({
   selector: 'app-paciente-list',
   standalone: true,
@@ -21,31 +21,36 @@ export class PacienteListComponent implements OnInit, OnDestroy {
   errorMessage: string = '';
   deleteConfirm: { id: string; name: string } | null = null;
   private destroy$ = new Subject<void>();
-
+ 
   constructor(private pacienteService: PacienteService, private router: Router) {}
-
+ 
   ngOnInit(): void {
     this.loadPatients();
   }
-
+ 
   loadPatients(): void {
     this.isLoading = true;
     this.errorMessage = '';
+ 
     this.pacienteService.getPatients()
-      .pipe(takeUntil(this.destroy$))
+      .pipe(
+        takeUntil(this.destroy$),
+        // finalize() SIEMPRE corre al terminar el observable,
+        // sin importar si fue éxito, error o cancelación.
+        // Antes: si el error no disparaba, isLoading quedaba en true para siempre.
+        finalize(() => { this.isLoading = false; })
+      )
       .subscribe({
         next: (data) => {
           this.patients = data;
-          this.filteredPatients = data;
-          this.isLoading = false;
+          this.filteredPatients = [...data];
         },
-        error: (error) => {
-          this.isLoading = false;
+        error: () => {
           this.errorMessage = 'Error al cargar los pacientes. Intenta nuevamente.';
         }
       });
   }
-
+ 
   filterPatients(): void {
     if (!this.searchQuery.trim()) {
       this.filteredPatients = this.patients;
@@ -59,37 +64,39 @@ export class PacienteListComponent implements OnInit, OnDestroy {
       );
     }
   }
-
+ 
   editPatient(id: string): void {
     this.router.navigate(['/pacientes/edit', id]);
   }
-
+ 
   confirmDelete(id: string, name: string): void {
     this.deleteConfirm = { id, name };
   }
-
+ 
   cancelDelete(): void {
     this.deleteConfirm = null;
   }
-
+ 
   deletePatient(id: string): void {
     this.pacienteService.deletePatient(id)
-      .pipe(takeUntil(this.destroy$))
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => { this.deleteConfirm = null; })
+      )
       .subscribe({
         next: () => {
-          this.deleteConfirm = null;
           this.loadPatients();
         },
-        error: (error) => {
+        error: () => {
           this.errorMessage = 'Error al eliminar el paciente.';
         }
       });
   }
-
+ 
   createPatient(): void {
     this.router.navigate(['/pacientes/create']);
   }
-
+ 
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();

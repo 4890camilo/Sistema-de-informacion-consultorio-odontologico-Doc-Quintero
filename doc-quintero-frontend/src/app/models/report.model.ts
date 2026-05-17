@@ -1,9 +1,10 @@
 export interface AppointmentReportItem {
   id: string;
   patientName: string;
-  dateTime: string;
-  type: string;
+  fechaHora: string;
+  tipo: string;
   status: string;
+  duracionBloque: number;
   notes?: string;
 }
 

@@ -1,13 +1,12 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { AppointmentService } from '../../services/appointment.service';
-import { AppointmentRequest, AppointmentResponse } from '../../models/appointment.model';
 import { PatientService } from '../../services/patient.service';
 import { PatientResponse } from '../../models/patient.model';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import { takeUntil, finalize } from 'rxjs/operators';
 
 @Component({
   selector: 'app-cita-create',
@@ -19,10 +18,8 @@ import { takeUntil } from 'rxjs/operators';
 export class CitaCreateComponent implements OnInit, OnDestroy {
   appointmentForm: FormGroup;
   patients: PatientResponse[] = [];
-  isLoadingPage = false;
   isLoadingForm = false;
   errorMessage = '';
-  successMessage = '';
   private destroy$ = new Subject<void>();
 
   constructor(
@@ -32,10 +29,15 @@ export class CitaCreateComponent implements OnInit, OnDestroy {
     public router: Router
   ) {
     this.appointmentForm = this.fb.group({
-      patientId: ['', Validators.required],
-      dateTime: ['', Validators.required],
-      type: ['', Validators.required],
-      notes: ['']
+      pacienteId: ['', Validators.required],
+      odontologoId: ['default_doc', Validators.required],
+      fechaHora: ['', Validators.required],
+      duracionMinutos: [30, Validators.required],
+      duracionBloque: [30, Validators.required],
+      tipo: ['CONSULTA_GENERAL', Validators.required],
+      notas: [''],
+      comentarioInterno: [''],
+      notificarPaciente: [true]
     });
   }
 
@@ -49,38 +51,25 @@ export class CitaCreateComponent implements OnInit, OnDestroy {
   }
 
   loadPatients(): void {
-    this.isLoadingPage = true;
     this.patientService.getAllPatients()
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: (data) => {
-          this.patients = data;
-          this.isLoadingPage = false;
-        },
-        error: (error) => {
-          this.isLoadingPage = false;
-          this.errorMessage = 'Error al cargar pacientes. Por favor intenta nuevamente.';
-          console.error('Error loading patients', error);
-        }
+        next: (data) => this.patients = data,
+        error: () => this.errorMessage = 'Error al cargar pacientes.'
       });
   }
 
   onSubmit(): void {
     if (this.appointmentForm.valid) {
       this.isLoadingForm = true;
-      this.errorMessage = '';
       this.appointmentService.createAppointment(this.appointmentForm.value)
-        .pipe(takeUntil(this.destroy$))
+        .pipe(
+          takeUntil(this.destroy$),
+          finalize(() => this.isLoadingForm = false)
+        )
         .subscribe({
-          next: () => {
-            this.successMessage = 'Cita agendada exitosamente. Redirigiendo...';
-            setTimeout(() => this.router.navigate(['/citas/list']), 1500);
-          },
-          error: (error) => {
-            this.isLoadingForm = false;
-            this.errorMessage = 'Error al crear la cita. Por favor intenta nuevamente.';
-            console.error('Error creating appointment', error);
-          }
+          next: () => this.router.navigate(['/citas/list']),
+          error: () => this.errorMessage = 'Error al agendar la cita.'
         });
     }
   }

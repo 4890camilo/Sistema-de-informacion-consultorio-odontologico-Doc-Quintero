@@ -1,7 +1,9 @@
 <div class="page-container">
   <div class="page-header">
-    <h1>Historias Clínicas</h1>
-    <p>Gestiona los registros clínicos de los pacientes</p>
+    <div class="page-header-text">
+      <h1>Historias Clínicas</h1>
+      <p>Gestiona los registros clínicos de los pacientes</p>
+    </div>
   </div>
 
   <div class="alert alert-error" *ngIf="errorMessage">
@@ -63,53 +65,67 @@
       <p>Cargando historia clínica...</p>
     </div>
 
+    <!-- Medical Alerts Banner -->
+    <div class="alert-banner" *ngIf="medicalHistory?.anamnesis?.alertasMedicas">
+      <div class="alert-banner-content">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M12 9v4m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 18c-.77 1.333.192 3 1.732 3z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span>ALERTA MÉDICA: {{ medicalHistory?.anamnesis?.alertasMedicas }}</span>
+      </div>
+    </div>
+
     <div *ngIf="!isLoadingHistory && medicalHistory" class="history-card">
       <div class="history-section">
         <h3>Motivo de Consulta</h3>
-        <p>{{ medicalHistory.reasonForConsultation }}</p>
-      </div>
-
-      <div class="history-section">
-        <h3>Enfermedad Actual</h3>
-        <p>{{ medicalHistory.currentIllness }}</p>
+        <p>{{ medicalHistory?.anamnesis?.motivoConsulta }}</p>
       </div>
 
       <div class="history-row">
         <div class="history-section">
-          <h3>Observaciones</h3>
-          <p>{{ medicalHistory.extraoralExam || 'N/A' }}</p>
+          <h3>Enfermedades Sistémicas</h3>
+          <div class="tags-container">
+            <span class="badge" *ngFor="let enf of medicalHistory?.anamnesis?.enfermedadesSistemicas">{{ enf }}</span>
+            <p *ngIf="!medicalHistory?.anamnesis?.enfermedadesSistemicas?.length">Ninguna reportada</p>
+          </div>
         </div>
         <div class="history-section">
-          <h3>Antecedentes Familiares</h3>
-          <p>{{ medicalHistory.familyHistory || 'N/A' }}</p>
+          <h3>Hábitos</h3>
+          <div class="tags-container">
+            <span class="badge badge-teal" *ngFor="let hab of medicalHistory?.anamnesis?.habitos">{{ hab }}</span>
+            <p *ngIf="!medicalHistory?.anamnesis?.habitos?.length">Ninguno reportado</p>
+          </div>
         </div>
       </div>
 
       <div class="history-row">
         <div class="history-section">
           <h3>Medicamentos</h3>
-          <p>{{ medicalHistory.medications || 'Ninguno' }}</p>
+          <p>{{ medicalHistory?.anamnesis?.medicamentos || 'Ninguno' }}</p>
         </div>
         <div class="history-section">
           <h3>Alergias</h3>
-          <p>{{ medicalHistory.allergies || 'Ninguna' }}</p>
+          <p>{{ medicalHistory?.anamnesis?.alergias || 'Ninguna' }}</p>
+        </div>
+      </div>
+
+      <div class="history-section" *ngIf="medicalHistory?.anamnesis?.enTratamientoMedico">
+        <h3>Tratamiento Médico Actual</h3>
+        <p>{{ medicalHistory?.anamnesis?.detalleTratamiento }}</p>
+      </div>
+
+      <div class="history-row">
+        <div class="history-section">
+          <h3>Antecedentes Odontológicos</h3>
+          <p>{{ medicalHistory?.anamnesis?.antecedentesOdontologicos || 'N/A' }}</p>
+        </div>
+        <div class="history-section">
+          <h3>Antecedentes Quirúrgicos</h3>
+          <p>{{ medicalHistory?.anamnesis?.antecedentesQuirurgicos || 'N/A' }}</p>
         </div>
       </div>
 
       <div class="history-section">
-        <h3>Antecedentes Odontológicos</h3>
-        <p>{{ medicalHistory.dentalHistory || 'N/A' }}</p>
-        <p>{{ medicalHistory.dentalHistory || 'N/A' }}</p>
-      </div>
-
-      <div class="history-section">
-        <h3>Examen Extraoral</h3>
-        <p>{{ medicalHistory.extraoralExam || 'Normal' }}</p>
-      </div>
-
-      <div class="history-section">
-        <h3>Examen Intraoral</h3>
-        <p>{{ medicalHistory.intraoralExam || 'Normal' }}</p>
+        <h3>Comentarios Adicionales</h3>
+        <p>{{ medicalHistory?.anamnesis?.comentarios || 'Sin comentarios' }}</p>
       </div>
 
       <div class="history-actions">

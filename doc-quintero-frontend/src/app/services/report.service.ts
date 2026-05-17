@@ -7,7 +7,7 @@ import { AppointmentReportItem, ReportSummary, ReportFilter } from '../models/re
   providedIn: 'root'
 })
 export class ReportService {
-  private apiUrl = 'http://localhost:8080/api/appointments/report';
+  private apiUrl = 'http://localhost:8080/api/reportes';
 
   constructor(private http: HttpClient) {}
 
@@ -15,27 +15,22 @@ export class ReportService {
    * Get appointments report for admin
    */
   getAppointmentsReport(startDate: string, endDate: string): Observable<AppointmentReportItem[]> {
-    return this.http.get<AppointmentReportItem[]>(this.apiUrl, {
-      params: { start: startDate, end: endDate }
+    return this.http.get<AppointmentReportItem[]>('http://localhost:8080/api/citas/rango', {
+      params: { desde: startDate, hasta: endDate }
     });
   }
 
   /**
    * Get report summary
    */
-  getReportSummary(startDate: string, endDate: string): Observable<ReportSummary> {
-    return this.http.get<ReportSummary>(`${this.apiUrl}/summary`, {
-      params: { start: startDate, end: endDate }
-    });
+  getReportSummary(): Observable<ReportSummary> {
+    return this.http.get<ReportSummary>(`${this.apiUrl}/resumen`);
   }
 
   /**
-   * Export report as CSV
+   * Export report as CSV (Stub)
    */
   exportReportAsCSV(startDate: string, endDate: string): Observable<Blob> {
-    return this.http.get(`${this.apiUrl}/export`, {
-      params: { start: startDate, end: endDate },
-      responseType: 'blob'
-    });
+    return this.http.get(`${this.apiUrl}/resumen`, { responseType: 'blob' });
   }
 }

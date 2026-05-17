@@ -1,33 +1,34 @@
-export interface ToothState {
-  toothNumber: number;
-  state: string; // e.g., 'HEALTHY', 'CAVIDAD', 'TREATED'
-  notes?: string;
+export interface Anamnesis {
+  motivoConsulta: string;
+  enTratamientoMedico: boolean;
+  detalleTratamiento?: string;
+  medicamentos?: string;
+  alergias?: string;
+  enfermedadesSistemicas: string[];
+  habitos: string[];
+  antecedentesQuirurgicos?: string;
+  antecedentesOdontologicos?: string;
+  embarazo: boolean;
+  alertasMedicas?: string;
+  comentarios?: string;
 }
 
 export interface MedicalHistoryRequest {
-  patientId: string;
-  reasonForConsultation: string;
-  currentIllness: string;
-  pastMedicalHistory?: string;
-  familyHistory?: string;
-  medications?: string;
-  allergies?: string;
-  dentalHistory?: string;
-  extraoralExam?: string;
-  intraoralExam?: string;
-  teethStates?: ToothState[];
+  pacienteId: string;
+  anamnesis: Anamnesis;
 }
 
-export interface MedicalHistoryResponse extends MedicalHistoryRequest {
+export interface MedicalHistoryResponse {
   id: string;
-  patientName: string;
-  dateCreated: string;
-  lastUpdated: string;
+  pacienteId: string;
+  anamnesis: Anamnesis;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface MedicalHistoryListItem {
   id: string;
-  patientName: string;
-  reasonForConsultation: string;
-  dateCreated: string;
+  pacienteId: string;
+  motivoConsulta: string;
+  createdAt: string;
 }

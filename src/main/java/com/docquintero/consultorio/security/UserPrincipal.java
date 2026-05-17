@@ -1,6 +1,6 @@
 package com.docquintero.consultorio.security;
 
-import com.docquintero.consultorio.model.User;
+import com.docquintero.consultorio.auth.model.Usuario;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -23,17 +23,17 @@ public class UserPrincipal implements UserDetails {
         this.active = active;
     }
 
-    public static UserPrincipal create(User user) {
-        Collection<GrantedAuthority> authorities = user.getRoles().stream()
+    public static UserPrincipal create(Usuario usuario) {
+        Collection<GrantedAuthority> authorities = usuario.getRoles().stream()
                 .map(role -> new SimpleGrantedAuthority("ROLE_" + role.name()))
                 .collect(Collectors.toList());
 
         return new UserPrincipal(
-                user.getId(),
-                user.getEmail(),
-                user.getPassword(),
+                usuario.getId(),
+                usuario.getEmail(),
+                usuario.getPassword(),
                 authorities,
-                user.isActive()
+                usuario.isActive()
         );
     }
 

@@ -3,6 +3,7 @@ import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angula
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../auth';
 import { CommonModule } from '@angular/common';
+import { finalize } from 'rxjs/operators';
  
 @Component({
   selector: 'app-register',
@@ -44,16 +45,18 @@ export class RegisterComponent {
         roles: [formValue.role]
       };
 
-      this.authService.register(dto).subscribe({
-        next: (response: any) => {
-          this.successMessage = response?.message || 'Registro exitoso. Ingresa para continuar.';
-          this.errorMessage = '';
-          setTimeout(() => this.router.navigate(['/auth/login']), 2000);
-        },
-        error: (error: any) => {
-          this.errorMessage = error?.error?.message || 'Fallo en la conexión con el servidor.';
-        }
-      });
+      this.authService.register(dto)
+        .pipe(finalize(() => { }))
+        .subscribe({
+          next: (response: any) => {
+            this.successMessage = response?.message || 'Registro exitoso. Ingresa para continuar.';
+            this.errorMessage = '';
+            setTimeout(() => this.router.navigate(['/auth/login']), 2000);
+          },
+          error: (error: any) => {
+            this.errorMessage = error?.error?.message || 'Fallo en la conexión con el servidor.';
+          }
+        });
     } else {
       this.errorMessage = `Campos inválidos: Email ${emailStatus} | Pass ${passwordStatus} | Rol ${roleStatus}`;
     }

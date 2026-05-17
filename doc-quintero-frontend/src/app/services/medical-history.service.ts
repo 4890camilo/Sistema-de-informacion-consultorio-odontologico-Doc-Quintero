@@ -7,34 +7,22 @@ import { MedicalHistoryRequest, MedicalHistoryResponse, MedicalHistoryListItem }
   providedIn: 'root'
 })
 export class MedicalHistoryService {
-  private apiUrl = 'http://localhost:8080/api/medical-history';
+  private apiUrl = 'http://localhost:8080/api/historia-clinica';
 
   constructor(private http: HttpClient) {}
 
-  /**
-   * Get medical history for a patient
-   */
   getMedicalHistory(patientId: string): Observable<MedicalHistoryResponse> {
-    return this.http.get<MedicalHistoryResponse>(`${this.apiUrl}/${patientId}`);
+    return this.http.get<MedicalHistoryResponse>(`${this.apiUrl}/paciente/${patientId}`);
   }
 
-  /**
-   * Create medical history for a patient
-   */
-  createMedicalHistory(patientId: string, history: MedicalHistoryRequest): Observable<MedicalHistoryResponse> {
-    return this.http.post<MedicalHistoryResponse>(`${this.apiUrl}/${patientId}`, history);
+  createMedicalHistory(history: MedicalHistoryRequest): Observable<MedicalHistoryResponse> {
+    return this.http.post<MedicalHistoryResponse>(this.apiUrl, history);
   }
 
-  /**
-   * Update medical history
-   */
-  updateMedicalHistory(patientId: string, history: MedicalHistoryRequest): Observable<MedicalHistoryResponse> {
-    return this.http.put<MedicalHistoryResponse>(`${this.apiUrl}/${patientId}`, history);
+  updateMedicalHistory(id: string, history: MedicalHistoryRequest): Observable<MedicalHistoryResponse> {
+    return this.http.put<MedicalHistoryResponse>(`${this.apiUrl}/${id}`, history);
   }
 
-  /**
-   * Get all medical histories (for filtering/search)
-   */
   getAllMedicalHistories(): Observable<MedicalHistoryListItem[]> {
     return this.http.get<MedicalHistoryListItem[]>(this.apiUrl);
   }

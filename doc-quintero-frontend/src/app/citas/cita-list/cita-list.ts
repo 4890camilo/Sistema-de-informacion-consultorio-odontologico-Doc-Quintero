@@ -3,9 +3,9 @@ import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { AppointmentService } from '../../services/appointment.service';
-import { AppointmentListItem } from '../../models/appointment.model';
+import { AppointmentResponse } from '../../models/appointment.model';
 import { Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import { takeUntil, finalize } from 'rxjs/operators';
 
 @Component({
   standalone: true,
@@ -15,8 +15,8 @@ import { takeUntil } from 'rxjs/operators';
   styleUrl: './cita-list.scss',
 })
 export class CitaListComponent implements OnInit, OnDestroy {
-  appointments: AppointmentListItem[] = [];
-  filteredAppointments: AppointmentListItem[] = [];
+  appointments: AppointmentResponse[] = [];
+  filteredAppointments: AppointmentResponse[] = [];
   isLoading: boolean = false;
   searchQuery: string = '';
   errorMessage: string = '';
@@ -32,15 +32,16 @@ export class CitaListComponent implements OnInit, OnDestroy {
     this.isLoading = true;
     this.errorMessage = '';
     this.appointmentService.getAllAppointments()
-      .pipe(takeUntil(this.destroy$))
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => { this.isLoading = false; })
+      )
       .subscribe({
-        next: (data: AppointmentListItem[]) => {
+        next: (data: AppointmentResponse[]) => {
           this.appointments = data;
           this.filteredAppointments = data;
-          this.isLoading = false;
         },
         error: (error: any) => {
-          this.isLoading = false;
           this.errorMessage = 'Error al cargar las citas';
         }
       });
@@ -48,7 +49,7 @@ export class CitaListComponent implements OnInit, OnDestroy {
 
   filterAppointments(): void {
     const query = this.searchQuery.trim().toLowerCase();
-    this.filteredAppointments = this.appointments.filter((apt: AppointmentListItem) => {
+    this.filteredAppointments = this.appointments.filter((apt: AppointmentResponse) => {
       const patientName = apt.patientName?.toLowerCase() || '';
       return patientName.includes(query);
     });

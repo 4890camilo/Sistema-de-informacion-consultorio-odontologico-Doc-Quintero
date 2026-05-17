@@ -1,5 +1,5 @@
 @import '../pacientes-shared.scss';
-
+ 
 // ── Badge ──────────────────────────────────────────────────
 .badge {
   display: inline-block;
@@ -11,7 +11,131 @@
   font-weight: 600;
   letter-spacing: 0.03em;
 }
-
+ 
+// ── Page header con botón alineado ─────────────────────────
+.page-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+ 
+  .page-header-text {
+    h1 {
+      margin: 0;
+    }
+    p {
+      margin: 0;
+    }
+  }
+ 
+  .btn-add {
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+}
+ 
+// ── Toolbar (barra de búsqueda) ────────────────────────────
+.list-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+  flex-wrap: wrap;
+}
+ 
+// El shared.scss puede no tener el tamaño del SVG → renderiza enorme
+.search-box {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  background: $white;
+  border: 1.5px solid rgba($teal-mid, 0.25);
+  border-radius: 8px;
+  padding: 0.55rem 0.9rem;
+  min-width: 280px;
+  max-width: 420px;
+  width: 100%;
+ 
+  svg {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+    color: $text-muted;
+  }
+ 
+  input {
+    border: none;
+    outline: none;
+    background: transparent;
+    font-size: 0.9rem;
+    color: $text-primary;
+    width: 100%;
+    font-family: 'DM Sans', sans-serif;
+ 
+    &::placeholder {
+      color: $text-muted;
+    }
+  }
+ 
+  &:focus-within {
+    border-color: $teal-mid;
+    box-shadow: 0 0 0 3px rgba($teal-mid, 0.1);
+  }
+}
+ 
+// Botón Crear Paciente no debe estirarse al ancho completo
+.empty-state {
+  .btn {
+    width: auto;
+    align-self: center;
+  }
+}
+ 
+// ── Botones de acción en tabla ─────────────────────────────
+.table-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+ 
+.btn-icon {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.45rem 0.85rem;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.1s;
+  line-height: 1;
+ 
+  &:active {
+    transform: scale(0.97);
+  }
+}
+ 
+.btn-icon-edit {
+  background: rgba($teal-mid, 0.1);
+  color: $teal-deep;
+ 
+  &:hover {
+    background: rgba($teal-mid, 0.22);
+  }
+}
+ 
+.btn-icon-delete {
+  background: rgba($error, 0.08);
+  color: $error;
+ 
+  &:hover {
+    background: rgba($error, 0.18);
+  }
+}
+ 
 // ── Modal ──────────────────────────────────────────────────
 .modal-overlay {
   position: fixed;
@@ -23,71 +147,69 @@
   z-index: 1000;
   animation: fadeIn 0.2s ease-out;
 }
-
+ 
 .modal-content {
   background: $white;
   border-radius: 12px;
   padding: 2rem;
-  max-width: 400px;
+  max-width: 420px;
   width: 90%;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
   animation: slideUp 0.3s ease-out;
-
+ 
   h3 {
     font-family: 'Fraunces', serif;
     font-size: 1.4rem;
     color: $teal-deep;
     margin: 0 0 0.75rem 0;
   }
-
+ 
   p {
     color: $text-muted;
     font-size: 0.95rem;
     line-height: 1.6;
     margin: 0 0 1.5rem 0;
-
+ 
     strong {
       color: $text-primary;
     }
   }
 }
-
+ 
 .modal-actions {
   display: flex;
-  gap: 1rem;
+  gap: 0.75rem;
   justify-content: flex-end;
-
+ 
   .btn {
-    flex: 1;
+    min-width: 110px;
   }
 }
-
+ 
+// Botón eliminar (dentro del modal)
 .btn-delete {
   background: $error;
   color: $white;
   border: none;
   border-radius: 6px;
   padding: 0.6rem 1.2rem;
-  font-size: 0.85rem;
+  font-size: 0.9rem;
   font-weight: 600;
   cursor: pointer;
+  min-width: 110px;
   transition: background 0.2s;
-
+ 
   &:hover {
     background: darken($error, 10%);
   }
 }
-
+ 
 // ── Animations ────────────────────────────────────────────
 @keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
+  from { opacity: 0; }
+  to   { opacity: 1; }
 }
-
+ 
 @keyframes slideUp {
   from {
     opacity: 0;
