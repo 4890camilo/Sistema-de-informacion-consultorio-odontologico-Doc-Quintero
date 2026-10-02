@@ -22,8 +22,9 @@ export class RegisterComponent {
     private router: Router
   ) {
     this.registerForm = this.fb.group({
-      email: ['', [Validators.required]],
+      email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(6)]],
+      nombre: ['', Validators.required],
       role: ['', Validators.required]
     });
   }
@@ -42,6 +43,7 @@ export class RegisterComponent {
       const dto = {
         email: formValue.email,
         password: formValue.password,
+        nombre: formValue.nombre,
         roles: [formValue.role]
       };
 
@@ -54,7 +56,29 @@ export class RegisterComponent {
             setTimeout(() => this.router.navigate(['/auth/login']), 2000);
           },
           error: (error: any) => {
-            this.errorMessage = error?.error?.message || 'Fallo en la conexión con el servidor.';
+            console.error('Register request error:', error);
+
+            if (error?.status === 403) {
+              this.errorMessage = 'No tienes permiso para registrar usuarios. Inicia sesión como administrador.';
+              return;
+            }
+
+            const serverError = error?.error;
+            let errorMessage = '';
+
+            if (serverError?.message) {
+              errorMessage = serverError.message;
+            } else if (typeof serverError === 'string') {
+              errorMessage = serverError;
+            } else if (serverError && typeof serverError === 'object') {
+              errorMessage = JSON.stringify(serverError);
+            } else if (error?.message) {
+              errorMessage = error.message;
+            } else {
+              errorMessage = 'Fallo en la conexión con el servidor.';
+            }
+
+            this.errorMessage = errorMessage;
           }
         });
     } else {

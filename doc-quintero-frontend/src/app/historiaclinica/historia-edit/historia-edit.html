@@ -4,13 +4,13 @@
     <p>Actualiza la historia clínica del paciente</p>
   </div>
 
+  <!-- Alertas de éxito / error -->
   <div class="alert alert-success" *ngIf="successMessage">
     <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
       <path d="M13.5 4.5L6 12L2.5 8.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
     </svg>
     {{ successMessage }}
   </div>
-
   <div class="alert alert-error" *ngIf="errorMessage">
     <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
       <circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="1.4"/>
@@ -19,154 +19,188 @@
     {{ errorMessage }}
   </div>
 
+  <!-- Spinner de carga -->
   <div class="loading-spinner" *ngIf="isLoadingPage">
     <div class="spinner"></div>
-    <p>Cargando información...</p>
+    <p>Cargando información del paciente...</p>
   </div>
 
-  <div class="form-card" *ngIf="!isLoadingPage && patient">
-    <div class="patient-info-header">
-      <h2>{{ patient.firstName }} {{ patient.lastName }}</h2>
-      <p>{{ patient.identificationNumber }}</p>
+  <div *ngIf="!isLoadingPage && patient">
+    <!-- Header del paciente (estilo Doc Quintero / Dentalink) -->
+    <app-patient-header
+      [patient]="{
+        id: patient.id || '3252',
+        identificationNumber: patient.identificationNumber,
+        fullName: patient.firstName + ' ' + patient.lastName,
+        ageYears: 29,
+        ageMonths: 8,
+        agreement: patient.insurance || 'Sin convenio',
+        medicalAlerts: patient.allergies ? [patient.allergies] : [],
+        diseases: patient.chronicDiseases ? [patient.chronicDiseases] : [],
+        medications: patient.currentMedications ? [patient.currentMedications] : []
+      }">
+    </app-patient-header>
+
+    <!-- Odontograma interactivo -->
+    <div style="margin-bottom: 1.75rem;">
+      <app-odontograma-interactive [historiaClinicaId]="patient.id"></app-odontograma-interactive>
     </div>
+  </div>
 
+  <!-- Formulario principal de historia clínica -->
+  <div class="form-card" *ngIf="!isLoadingPage && patient">
     <form [formGroup]="historyForm" (ngSubmit)="submitForm()">
-      
-      <div class="form-section">
-        <h3>Información Principal</h3>
-        
-        <div class="form-group">
-          <label for="reasonForConsultation">
-            Motivo de Consulta
-            <span class="required">*</span>
-          </label>
-          <textarea 
-            id="reasonForConsultation" 
-            formControlName="reasonForConsultation"
-            placeholder="Describe el motivo principal de la consulta..."
-            rows="3"
-            [class.has-error]="historyForm.get('reasonForConsultation')?.touched && historyForm.get('reasonForConsultation')?.invalid"></textarea>
-          <div class="error-message" *ngIf="historyForm.get('reasonForConsultation')?.touched && historyForm.get('reasonForConsultation')?.invalid">
-            El motivo de consulta es requerido
+      <div formGroupName="anamnesis">
+
+        <!-- Sección 1: Anamnesis / Motivo de Consulta -->
+        <div class="form-section">
+          <h3>Información Principal y Motivo de Consulta</h3>
+          <div class="form-group">
+            <label for="motivoConsulta">
+              Motivo de Consulta
+              <span class="required">*</span>
+            </label>
+            <textarea
+              id="motivoConsulta"
+              formControlName="motivoConsulta"
+              placeholder="Describa el motivo principal de la consulta..."
+              rows="3"
+              [class.has-error]="historyForm.get('anamnesis.motivoConsulta')?.touched && historyForm.get('anamnesis.motivoConsulta')?.invalid">
+            </textarea>
+            <div class="error-message" *ngIf="historyForm.get('anamnesis.motivoConsulta')?.touched && historyForm.get('anamnesis.motivoConsulta')?.invalid">
+              El motivo de consulta es requerido
+            </div>
           </div>
         </div>
 
-        <div class="form-group">
-          <label for="currentIllness">
-            Enfermedad Actual
-            <span class="required">*</span>
-          </label>
-          <textarea 
-            id="currentIllness" 
-            formControlName="currentIllness"
-            placeholder="Describe la enfermedad o condición actual..."
-            rows="3"
-            [class.has-error]="historyForm.get('currentIllness')?.touched && historyForm.get('currentIllness')?.invalid"></textarea>
-          <div class="error-message" *ngIf="historyForm.get('currentIllness')?.touched && historyForm.get('currentIllness')?.invalid">
-            La enfermedad actual es requerida
+        <!-- Sección 2: Antecedentes Médicos Sistémicos -->
+        <div class="form-section">
+          <h3>Antecedentes Médicos Sistémicos</h3>
+          <div class="enfermedades-grid">
+            <label class="checkbox-item" *ngFor="let enf of ['Diabetes', 'Hipertensión', 'Cardiopatías', 'Epilepsia', 'VIH', 'Asma', 'Hepatitis']">
+              <input type="checkbox" [checked]="isEnfermedadChecked(enf)" (change)="toggleEnfermedad(enf)">
+              <span>{{ enf }}</span>
+            </label>
           </div>
         </div>
+
+        <!-- Sección 3: Tratamiento Médico, Medicamentos y Alergias -->
+        <div class="form-section">
+          <h3>Tratamiento Médico y Farmacología</h3>
+          <div class="form-row">
+            <div class="form-group">
+              <label>¿Tratamiento médico actual?</label>
+              <div class="radio-group" style="display:flex;gap:1rem;margin-top:0.5rem;">
+                <label><input type="radio" [value]="true" formControlName="enTratamientoMedico"> Sí</label>
+                <label><input type="radio" [value]="false" formControlName="enTratamientoMedico"> No</label>
+              </div>
+            </div>
+            <div class="form-group" *ngIf="historyForm.get('anamnesis.enTratamientoMedico')?.value">
+              <label for="detalleTratamiento">Detalle del Tratamiento</label>
+              <input type="text" id="detalleTratamiento" formControlName="detalleTratamiento" placeholder="Especifique el tratamiento">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="medicamentos">Medicamentos Actuales</label>
+              <textarea
+                id="medicamentos"
+                formControlName="medicamentos"
+                placeholder="Listado de medicamentos que consume..."
+                rows="2">
+              </textarea>
+            </div>
+            <div class="form-group">
+              <label for="alergias">Alergias</label>
+              <textarea
+                id="alergias"
+                formControlName="alergias"
+                placeholder="Alergias conocidas (medicamentos, alimentos, látex)..."
+                rows="2">
+              </textarea>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sección 4: Antecedentes Odontológicos y Quirúrgicos -->
+        <div class="form-section">
+          <h3>Antecedentes Quirúrgicos y Odontológicos</h3>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="antecedentesQuirurgicos">Antecedentes Quirúrgicos</label>
+              <textarea
+                id="antecedentesQuirurgicos"
+                formControlName="antecedentesQuirurgicos"
+                placeholder="Cirugías previas, hospitalizaciones..."
+                rows="2">
+              </textarea>
+            </div>
+            <div class="form-group">
+              <label for="antecedentesOdontologicos">Antecedentes Odontológicos</label>
+              <textarea
+                id="antecedentesOdontologicos"
+                formControlName="antecedentesOdontologicos"
+                placeholder="Procedimientos previos, extracciones, implantes..."
+                rows="2">
+              </textarea>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sección 5: Alertas Médicas y Observaciones -->
+        <div class="form-section">
+          <h3>Alertas Médicas y Observaciones</h3>
+          <div class="form-group">
+            <label for="alertasMedicas">Alertas Médicas Críticas</label>
+            <input
+              type="text"
+              id="alertasMedicas"
+              formControlName="alertasMedicas"
+              placeholder="Ej: ALÉRGICO A LA PENICILINA / RIESGO DE HEMORRAGIA">
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="embarazo">¿Embarazo?</label>
+              <select id="embarazo" formControlName="embarazo">
+                <option [ngValue]="true">Sí</option>
+                <option [ngValue]="false">No</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="comentarios">Comentarios / Evolución</label>
+              <textarea
+                id="comentarios"
+                formControlName="comentarios"
+                placeholder="Observaciones clínicas adicionales..."
+                rows="2">
+              </textarea>
+            </div>
+          </div>
+        </div>
+
       </div>
 
-      <div class="form-section">
-        <h3>Antecedentes</h3>
-        
-        <div class="form-row">
-          <div class="form-group">
-            <label for="pastMedicalHistory">Antecedentes Médicos</label>
-            <textarea 
-              id="pastMedicalHistory" 
-              formControlName="pastMedicalHistory"
-              placeholder="Enfermedades o procedimientos anteriores..."
-              rows="2"></textarea>
-          </div>
-
-          <div class="form-group">
-            <label for="familyHistory">Antecedentes Familiares</label>
-            <textarea 
-              id="familyHistory" 
-              formControlName="familyHistory"
-              placeholder="Enfermedades hereditarias o relevantes..."
-              rows="2"></textarea>
-          </div>
-        </div>
-      </div>
-
-      <div class="form-section">
-        <h3>Medicamentos y Alergias</h3>
-        
-        <div class="form-row">
-          <div class="form-group">
-            <label for="medications">Medicamentos Actuales</label>
-            <textarea 
-              id="medications" 
-              formControlName="medications"
-              placeholder="Listado de medicamentos que toma regularmente..."
-              rows="2"></textarea>
-          </div>
-
-          <div class="form-group">
-            <label for="allergies">Alergias</label>
-            <textarea 
-              id="allergies" 
-              formControlName="allergies"
-              placeholder="Alergias conocidas..."
-              rows="2"></textarea>
-          </div>
-        </div>
-      </div>
-
-      <div class="form-section">
-        <h3>Historia Odontológica</h3>
-        
-        <div class="form-group">
-          <label for="dentalHistory">Antecedentes Odontológicos</label>
-          <textarea 
-            id="dentalHistory" 
-            formControlName="dentalHistory"
-            placeholder="Procedimientos dentales previos, implantes, etc..."
-            rows="3"></textarea>
-        </div>
-      </div>
-
-      <div class="form-section">
-        <h3>Examen Físico</h3>
-        
-        <div class="form-row">
-          <div class="form-group">
-            <label for="extraoralExam">Examen Extraoral</label>
-            <textarea 
-              id="extraoralExam" 
-              formControlName="extraoralExam"
-              placeholder="Observaciones de estructura facial, simetría, etc..."
-              rows="2"></textarea>
-          </div>
-
-          <div class="form-group">
-            <label for="intraoralExam">Examen Intraoral</label>
-            <textarea 
-              id="intraoralExam" 
-              formControlName="intraoralExam"
-              placeholder="Estado de tejidos blandos, piezas dentales, etc..."
-              rows="2"></textarea>
-          </div>
-        </div>
-      </div>
-
+      <!-- Acciones -->
       <div class="form-actions">
-        <button 
-          type="submit" 
-          class="btn btn-primary"
-          [disabled]="historyForm.invalid || isLoadingForm">
-          <span *ngIf="!isLoadingForm">Guardar Cambios</span>
-          <span *ngIf="isLoadingForm">Guardando...</span>
-        </button>
-        <button 
-          type="button" 
+        <button
+          type="button"
           class="btn btn-secondary"
           (click)="cancel()"
           [disabled]="isLoadingForm">
           Cancelar
+        </button>
+        <button
+          type="submit"
+          class="btn btn-primary"
+          [disabled]="historyForm.invalid || isLoadingForm">
+          <svg *ngIf="!isLoadingForm" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/>
+            <polyline points="17 21 17 13 7 13 7 21"/>
+            <polyline points="7 3 7 8 15 8"/>
+          </svg>
+          <span *ngIf="!isLoadingForm">Guardar Historia Clínica</span>
+          <div *ngIf="isLoadingForm" class="spinner" style="width:18px;height:18px;border-width:2px;"></div>
         </button>
       </div>
     </form>

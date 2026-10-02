@@ -31,8 +31,8 @@
       
       <div class="info-row">
         <div class="info-item">
-          <label>Paciente ID</label>
-          <p>{{ appointment.pacienteId }}</p>
+          <label>Paciente</label>
+          <p><strong>{{ appointment.patientName || appointment.pacienteId }}</strong></p>
         </div>
         <div class="info-item">
           <label>Tipo de Cita</label>
@@ -43,18 +43,18 @@
       <div class="info-row">
         <div class="info-item">
           <label>Fecha Actual</label>
-          <p>{{ appointment.fechaHora | date:'dd MMMM yyyy, HH:mm':'':'es' }}</p>
+          <p>{{ appointment.fechaHora | date:'dd MMMM yyyy, HH:mm' }}</p>
         </div>
         <div class="info-item">
           <label>Estado</label>
-          <p><span class="badge" [class.badge-success]="appointment.status === 'CONFIRMADA'" [class.badge-warning]="appointment.status === 'PENDIENTE'" [class.badge-error]="appointment.status === 'CANCELADA'">{{ appointment.status }}</span></p>
+          <p><span class="badge">{{ appointment.estado || appointment.status }}</span></p>
         </div>
       </div>
 
-      <div *ngIf="appointment.notes" class="info-row">
+      <div *ngIf="appointment.notas || appointment.notes" class="info-row">
         <div class="info-item full">
           <label>Notas</label>
-          <p>{{ appointment.notes }}</p>
+          <p>{{ appointment.notas || appointment.notes }}</p>
         </div>
       </div>
     </div>

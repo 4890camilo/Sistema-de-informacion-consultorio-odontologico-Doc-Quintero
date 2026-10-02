@@ -1,0 +1,397 @@
+<div class="odontograma-container">
+
+  <!-- ═══════════ HEADER DE CONTROLES ═══════════ -->
+  <div class="odontograma-header">
+    <div class="denticion-tabs">
+      <button [class.active]="tipoDenticion === 'permanente'" (click)="tipoDenticion = 'permanente'">Permanente (FDI)</button>
+      <button [class.active]="tipoDenticion === 'temporal'" (click)="tipoDenticion = 'temporal'">Temporal (Decidua)</button>
+    </div>
+
+    <div class="version-badge" *ngIf="versionActual">
+      <span class="v-tag">{{ versionActual }}</span>
+    </div>
+
+    <div class="action-buttons">
+      <button class="btn-modo" [class.active]="modoVista === 'diagnostico'" (click)="modoVista = 'diagnostico'">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
+        Diagnóstico
+      </button>
+      
+      <button class="btn-definir" (click)="abrirModalDiagnostico()" [disabled]="piezasSeleccionadas.length === 0">
+        Definir CIE-10 & CUPS ({{ piezasSeleccionadas.length }})
+      </button>
+
+      <button class="btn-guardar-backend" (click)="guardarEnBackend()" [disabled]="isSaving || !historiaClinicaId">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+        {{ isSaving ? 'Guardando...' : 'Guardar Odontograma' }}
+      </button>
+    </div>
+  </div>
+
+  <div class="status-alert" *ngIf="mensajeEstado" [class.error]="mensajeEstado.includes('❌')">
+    {{ mensajeEstado }}
+  </div>
+
+  <h3 class="odontograma-title">Odontograma Continuo (Sistema FDI • CIE-10 • CUPS Colombia)</h3>
+
+  <!-- Spinner de carga -->
+  <div class="loading-box" *ngIf="isLoading">
+    <div class="spinner"></div>
+    <p>Cargando odontograma desde historia clínica...</p>
+  </div>
+
+  <!-- ═══════════ ARCADA SUPERIOR ═══════════ -->
+  <div class="arcada-section" *ngIf="!isLoading && tipoDenticion === 'permanente'">
+
+    <!-- Numeración superior -->
+    <div class="numeracion-row">
+      <div class="cuadrante-nums">
+        <span *ngFor="let n of cuadrante1">{{ n }}</span>
+      </div>
+      <div class="cuadrante-sep"></div>
+      <div class="cuadrante-nums">
+        <span *ngFor="let n of cuadrante2">{{ n }}</span>
+      </div>
+    </div>
+
+    <!-- Coronas superiores -->
+    <div class="piezas-row coronas-row">
+      <div class="cuadrante-piezas">
+        <div *ngFor="let num of cuadrante1" class="corona-wrapper" [class.selected]="esPiezaSeleccionada(num)" (click)="toggleSeleccionPieza(num)" [title]="obtenerTooltipPieza(num)">
+          <svg class="corona-svg" viewBox="0 0 40 32" xmlns="http://www.w3.org/2000/svg">
+            <path [attr.d]="obtenerPathCorona(num)"
+              [attr.fill]="obtenerColorCondicion(num)"
+              stroke="#2d6a6a" stroke-width="1.2" stroke-linejoin="round"/>
+          </svg>
+        </div>
+      </div>
+      <div class="cuadrante-sep-vertical" style="height:32px"></div>
+      <div class="cuadrante-piezas">
+        <div *ngFor="let num of cuadrante2" class="corona-wrapper" [class.selected]="esPiezaSeleccionada(num)" (click)="toggleSeleccionPieza(num)" [title]="obtenerTooltipPieza(num)">
+          <svg class="corona-svg" viewBox="0 0 40 32" xmlns="http://www.w3.org/2000/svg">
+            <path [attr.d]="obtenerPathCorona(num)"
+              [attr.fill]="obtenerColorCondicion(num)"
+              stroke="#2d6a6a" stroke-width="1.2" stroke-linejoin="round"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <!-- Círculos de 5 superficies superiores -->
+    <div class="piezas-row">
+      <div class="cuadrante-piezas">
+        <div *ngFor="let num of cuadrante1" class="pieza-item" [class.selected]="esPiezaSeleccionada(num)" (click)="toggleSeleccionPieza(num)" [title]="obtenerTooltipPieza(num)">
+          <svg class="pieza-circulo" viewBox="0 0 50 50" xmlns="http://www.w3.org/2000/svg">
+            <path [attr.fill]="obtenerColorSuperficie(num, 'vestibular')"       d="M25,25 L25,4 A21,21 0 0,1 46,25 Z" stroke="#2d6a6a" stroke-width="0.6"/>
+            <path [attr.fill]="obtenerColorSuperficie(num, 'distal')"           d="M25,25 L46,25 A21,21 0 0,1 25,46 Z" stroke="#2d6a6a" stroke-width="0.6"/>
+            <path [attr.fill]="obtenerColorSuperficie(num, 'lingualPalatina')"  d="M25,25 L25,46 A21,21 0 0,1 4,25 Z"  stroke="#2d6a6a" stroke-width="0.6"/>
+            <path [attr.fill]="obtenerColorSuperficie(num, 'mesial')"           d="M25,25 L4,25 A21,21 0 0,1 25,4 Z"   stroke="#2d6a6a" stroke-width="0.6"/>
+            <circle cx="25" cy="25" r="21" fill="none" stroke="#2d6a6a" stroke-width="1.2"/>
+            <circle cx="25" cy="25" r="9"  [attr.fill]="obtenerColorSuperficie(num, 'oclusalIncisal')" stroke="#2d6a6a" stroke-width="0.9"/>
+          </svg>
+          <!-- Badge indicador CIE-10 y CUPS -->
+          <span class="cie10-badge" *ngIf="piezasEstado.get(num)?.codigoCie10" [title]="'CIE-10: ' + piezasEstado.get(num)?.codigoCie10">
+            {{ piezasEstado.get(num)?.codigoCie10 }}
+          </span>
+          <span class="cups-badge" *ngIf="piezasEstado.get(num)?.codigoCups" [title]="'CUPS: ' + piezasEstado.get(num)?.codigoCups">
+            C:{{ piezasEstado.get(num)?.codigoCups }}
+          </span>
+        </div>
+      </div>
+      <div class="cuadrante-sep-vertical"></div>
+      <div class="cuadrante-piezas">
+        <div *ngFor="let num of cuadrante2" class="pieza-item" [class.selected]="esPiezaSeleccionada(num)" (click)="toggleSeleccionPieza(num)" [title]="obtenerTooltipPieza(num)">
+          <svg class="pieza-circulo" viewBox="0 0 50 50" xmlns="http://www.w3.org/2000/svg">
+            <path [attr.fill]="obtenerColorSuperficie(num, 'vestibular')"       d="M25,25 L25,4 A21,21 0 0,1 46,25 Z" stroke="#2d6a6a" stroke-width="0.6"/>
+            <path [attr.fill]="obtenerColorSuperficie(num, 'distal')"           d="M25,25 L46,25 A21,21 0 0,1 25,46 Z" stroke="#2d6a6a" stroke-width="0.6"/>
+            <path [attr.fill]="obtenerColorSuperficie(num, 'lingualPalatina')"  d="M25,25 L25,46 A21,21 0 0,1 4,25 Z"  stroke="#2d6a6a" stroke-width="0.6"/>
+            <path [attr.fill]="obtenerColorSuperficie(num, 'mesial')"           d="M25,25 L4,25 A21,21 0 0,1 25,4 Z"   stroke="#2d6a6a" stroke-width="0.6"/>
+            <circle cx="25" cy="25" r="21" fill="none" stroke="#2d6a6a" stroke-width="1.2"/>
+            <circle cx="25" cy="25" r="9"  [attr.fill]="obtenerColorSuperficie(num, 'oclusalIncisal')" stroke="#2d6a6a" stroke-width="0.9"/>
+          </svg>
+          <span class="cie10-badge" *ngIf="piezasEstado.get(num)?.codigoCie10" [title]="'CIE-10: ' + piezasEstado.get(num)?.codigoCie10">
+            {{ piezasEstado.get(num)?.codigoCie10 }}
+          </span>
+          <span class="cups-badge" *ngIf="piezasEstado.get(num)?.codigoCups" [title]="'CUPS: ' + piezasEstado.get(num)?.codigoCups">
+            C:{{ piezasEstado.get(num)?.codigoCups }}
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Raíces superiores -->
+    <div class="piezas-row raices-row raices-sup">
+      <div class="cuadrante-piezas">
+        <div *ngFor="let num of cuadrante1" class="raiz-wrapper">
+          <svg class="raiz-svg" viewBox="0 0 40 32" xmlns="http://www.w3.org/2000/svg">
+            <path [attr.d]="obtenerPathRaiz(num)"
+              fill="none" stroke="#2d6a6a" stroke-width="1.3"
+              stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+      </div>
+      <div class="cuadrante-sep-vertical" style="height:32px"></div>
+      <div class="cuadrante-piezas">
+        <div *ngFor="let num of cuadrante2" class="raiz-wrapper">
+          <svg class="raiz-svg" viewBox="0 0 40 32" xmlns="http://www.w3.org/2000/svg">
+            <path [attr.d]="obtenerPathRaiz(num)"
+              fill="none" stroke="#2d6a6a" stroke-width="1.3"
+              stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ═══════════ DIVISOR ARCADAS ═══════════ -->
+  <div class="arcada-divider" *ngIf="!isLoading">
+    <div class="line"></div>
+    <span class="label-arcada">Arcada Superior</span>
+    <div class="dot"></div>
+    <span class="label-arcada">Arcada Inferior</span>
+    <div class="line"></div>
+  </div>
+
+  <!-- ═══════════ ARCADA INFERIOR ═══════════ -->
+  <div class="arcada-section" *ngIf="!isLoading && tipoDenticion === 'permanente'">
+
+    <!-- Raíces inferiores -->
+    <div class="piezas-row raices-row raices-inf">
+      <div class="cuadrante-piezas">
+        <div *ngFor="let num of cuadrante4" class="raiz-wrapper">
+          <svg class="raiz-svg" viewBox="0 0 40 32" xmlns="http://www.w3.org/2000/svg">
+            <g transform="scale(1,-1) translate(0,-32)">
+              <path [attr.d]="obtenerPathRaiz(num)"
+                fill="none" stroke="#2d6a6a" stroke-width="1.3"
+                stroke-linecap="round" stroke-linejoin="round"/>
+            </g>
+          </svg>
+        </div>
+      </div>
+      <div class="cuadrante-sep-vertical" style="height:32px"></div>
+      <div class="cuadrante-piezas">
+        <div *ngFor="let num of cuadrante3" class="raiz-wrapper">
+          <svg class="raiz-svg" viewBox="0 0 40 32" xmlns="http://www.w3.org/2000/svg">
+            <g transform="scale(1,-1) translate(0,-32)">
+              <path [attr.d]="obtenerPathRaiz(num)"
+                fill="none" stroke="#2d6a6a" stroke-width="1.3"
+                stroke-linecap="round" stroke-linejoin="round"/>
+            </g>
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <!-- Círculos de 5 superficies inferiores -->
+    <div class="piezas-row">
+      <div class="cuadrante-piezas">
+        <div *ngFor="let num of cuadrante4" class="pieza-item" [class.selected]="esPiezaSeleccionada(num)" (click)="toggleSeleccionPieza(num)" [title]="obtenerTooltipPieza(num)">
+          <svg class="pieza-circulo" viewBox="0 0 50 50" xmlns="http://www.w3.org/2000/svg">
+            <path [attr.fill]="obtenerColorSuperficie(num, 'vestibular')"       d="M25,25 L25,4 A21,21 0 0,1 46,25 Z" stroke="#2d6a6a" stroke-width="0.6"/>
+            <path [attr.fill]="obtenerColorSuperficie(num, 'distal')"           d="M25,25 L46,25 A21,21 0 0,1 25,46 Z" stroke="#2d6a6a" stroke-width="0.6"/>
+            <path [attr.fill]="obtenerColorSuperficie(num, 'lingualPalatina')"  d="M25,25 L25,46 A21,21 0 0,1 4,25 Z"  stroke="#2d6a6a" stroke-width="0.6"/>
+            <path [attr.fill]="obtenerColorSuperficie(num, 'mesial')"           d="M25,25 L4,25 A21,21 0 0,1 25,4 Z"   stroke="#2d6a6a" stroke-width="0.6"/>
+            <circle cx="25" cy="25" r="21" fill="none" stroke="#2d6a6a" stroke-width="1.2"/>
+            <circle cx="25" cy="25" r="9"  [attr.fill]="obtenerColorSuperficie(num, 'oclusalIncisal')" stroke="#2d6a6a" stroke-width="0.9"/>
+          </svg>
+          <span class="cie10-badge" *ngIf="piezasEstado.get(num)?.codigoCie10" [title]="'CIE-10: ' + piezasEstado.get(num)?.codigoCie10">
+            {{ piezasEstado.get(num)?.codigoCie10 }}
+          </span>
+          <span class="cups-badge" *ngIf="piezasEstado.get(num)?.codigoCups" [title]="'CUPS: ' + piezasEstado.get(num)?.codigoCups">
+            C:{{ piezasEstado.get(num)?.codigoCups }}
+          </span>
+        </div>
+      </div>
+      <div class="cuadrante-sep-vertical"></div>
+      <div class="cuadrante-piezas">
+        <div *ngFor="let num of cuadrante3" class="pieza-item" [class.selected]="esPiezaSeleccionada(num)" (click)="toggleSeleccionPieza(num)" [title]="obtenerTooltipPieza(num)">
+          <svg class="pieza-circulo" viewBox="0 0 50 50" xmlns="http://www.w3.org/2000/svg">
+            <path [attr.fill]="obtenerColorSuperficie(num, 'vestibular')"       d="M25,25 L25,4 A21,21 0 0,1 46,25 Z" stroke="#2d6a6a" stroke-width="0.6"/>
+            <path [attr.fill]="obtenerColorSuperficie(num, 'distal')"           d="M25,25 L46,25 A21,21 0 0,1 25,46 Z" stroke="#2d6a6a" stroke-width="0.6"/>
+            <path [attr.fill]="obtenerColorSuperficie(num, 'lingualPalatina')"  d="M25,25 L25,46 A21,21 0 0,1 4,25 Z"  stroke="#2d6a6a" stroke-width="0.6"/>
+            <path [attr.fill]="obtenerColorSuperficie(num, 'mesial')"           d="M25,25 L4,25 A21,21 0 0,1 25,4 Z"   stroke="#2d6a6a" stroke-width="0.6"/>
+            <circle cx="25" cy="25" r="21" fill="none" stroke="#2d6a6a" stroke-width="1.2"/>
+            <circle cx="25" cy="25" r="9"  [attr.fill]="obtenerColorSuperficie(num, 'oclusalIncisal')" stroke="#2d6a6a" stroke-width="0.9"/>
+          </svg>
+          <span class="cie10-badge" *ngIf="piezasEstado.get(num)?.codigoCie10" [title]="'CIE-10: ' + piezasEstado.get(num)?.codigoCie10">
+            {{ piezasEstado.get(num)?.codigoCie10 }}
+          </span>
+          <span class="cups-badge" *ngIf="piezasEstado.get(num)?.codigoCups" [title]="'CUPS: ' + piezasEstado.get(num)?.codigoCups">
+            C:{{ piezasEstado.get(num)?.codigoCups }}
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Coronas inferiores -->
+    <div class="piezas-row coronas-row">
+      <div class="cuadrante-piezas">
+        <div *ngFor="let num of cuadrante4" class="corona-wrapper" [class.selected]="esPiezaSeleccionada(num)" (click)="toggleSeleccionPieza(num)" [title]="obtenerTooltipPieza(num)">
+          <svg class="corona-svg" viewBox="0 0 40 32" xmlns="http://www.w3.org/2000/svg">
+            <g transform="scale(1,-1) translate(0,-32)">
+              <path [attr.d]="obtenerPathCorona(num)"
+                [attr.fill]="obtenerColorCondicion(num)"
+                stroke="#2d6a6a" stroke-width="1.2" stroke-linejoin="round"/>
+            </g>
+          </svg>
+        </div>
+      </div>
+      <div class="cuadrante-sep-vertical" style="height:32px"></div>
+      <div class="cuadrante-piezas">
+        <div *ngFor="let num of cuadrante3" class="corona-wrapper" [class.selected]="esPiezaSeleccionada(num)" (click)="toggleSeleccionPieza(num)" [title]="obtenerTooltipPieza(num)">
+          <svg class="corona-svg" viewBox="0 0 40 32" xmlns="http://www.w3.org/2000/svg">
+            <g transform="scale(1,-1) translate(0,-32)">
+              <path [attr.d]="obtenerPathCorona(num)"
+                [attr.fill]="obtenerColorCondicion(num)"
+                stroke="#2d6a6a" stroke-width="1.2" stroke-linejoin="round"/>
+            </g>
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <!-- Numeración inferior -->
+    <div class="numeracion-row" style="margin-top:4px">
+      <div class="cuadrante-nums">
+        <span *ngFor="let n of cuadrante4">{{ n }}</span>
+      </div>
+      <div class="cuadrante-sep"></div>
+      <div class="cuadrante-nums">
+        <span *ngFor="let n of cuadrante3">{{ n }}</span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ═══════════ LEYENDA ═══════════ -->
+  <div class="leyenda-superficies" *ngIf="!isLoading">
+    <span class="leyenda-titulo">Leyenda Diagnóstica:</span>
+    <div class="leyenda-item"><div class="leyenda-color" style="background:#e74c3c"></div><span>Caries</span></div>
+    <div class="leyenda-item"><div class="leyenda-color" style="background:#27ae60"></div><span>Restauración</span></div>
+    <div class="leyenda-item"><div class="leyenda-color" style="background:#2980b9"></div><span>Amalgama</span></div>
+    <div class="leyenda-item"><div class="leyenda-color" style="background:#8e44ad"></div><span>Sellante</span></div>
+    <div class="leyenda-item"><div class="leyenda-color" style="background:#7f8c8d"></div><span>Ausente</span></div>
+    <div class="leyenda-item"><div class="leyenda-color" style="background:#c0392b"></div><span>Extracción</span></div>
+    <div class="leyenda-item"><div class="leyenda-color" style="background:#9b59b6"></div><span>Endodoncia</span></div>
+    <div class="leyenda-item"><div class="leyenda-color" style="background:#3498db"></div><span>Corona</span></div>
+  </div>
+
+  <!-- ═══════════ BARRA FLOTANTE ═══════════ -->
+  <div class="floating-bar" *ngIf="piezasSeleccionadas.length > 0">
+    <div class="bar-info">
+      <span class="badge-count">{{ piezasSeleccionadas.length }}</span>
+      <span>Piezas FDI: {{ piezasSeleccionadas.join(', ') }}</span>
+    </div>
+    <button (click)="abrirModalDiagnostico()">Definir Condición, CIE-10 & CUPS</button>
+  </div>
+
+  <!-- ═══════════ MODAL EN 3 PASOS (CONDICIÓN + CIE-10 + CUPS) ═══════════ -->
+  <div class="modal-backdrop" *ngIf="modalDiagnosticoAbierto">
+    <div class="modal-card">
+      
+      <!-- Modal Header -->
+      <div class="modal-header">
+        <div>
+          <h3>Registro Clínico Dental (FDI • CIE-10 • CUPS)</h3>
+          <span class="modal-subtitle">Piezas FDI seleccionadas: {{ piezasSeleccionadas.join(', ') }}</span>
+        </div>
+        <button class="close-btn" (click)="cerrarModalDiagnostico()">&times;</button>
+      </div>
+
+      <!-- Modal Body - PASO 1: Condición Dental -->
+      <div class="modal-body" *ngIf="pasoModal === 'condicion'">
+        <p class="paso-instruccion"><strong>Paso 1 de 3:</strong> Selecciona la condición clínica o estado visual:</p>
+        <div class="diagnosticos-grid">
+          <div *ngFor="let item of opcionesDiagnostico" class="diag-card" (click)="seleccionarCondicionYPasarACie10(item)">
+            <div class="diag-muestra" [style.background-color]="item.color"></div>
+            <div class="diag-text">
+              <span class="diag-title">{{ item.label }}</span>
+              <span class="diag-cie-sug">CIE: {{ item.defaultCie10 }} | CUPS: {{ item.defaultCups }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modal Body - PASO 2: Selección de Código CIE-10 -->
+      <div class="modal-body" *ngIf="pasoModal === 'cie10'">
+        <div class="paso-header">
+          <button class="btn-back-step" (click)="pasoModal = 'condicion'">← Volver a condición</button>
+          <span class="paso-instruccion"><strong>Paso 2 de 3:</strong> Asigna el diagnóstico <strong>CIE-10</strong>:</span>
+        </div>
+
+        <div class="condicion-resumen" *ngIf="diagnosticoSeleccionadoTemp">
+          <div class="diag-muestra" [style.background-color]="diagnosticoSeleccionadoTemp.color"></div>
+          <span>Condición seleccionada: <strong>{{ diagnosticoSeleccionadoTemp.label }}</strong></span>
+        </div>
+
+        <!-- Buscador de CIE-10 -->
+        <div class="cie10-search">
+          <input type="text" [(ngModel)]="cie10Filtro" placeholder="Buscar por código (ej: K02) o diagnóstico (ej: caries)..." />
+        </div>
+
+        <!-- Lista de CIE-10 -->
+        <div class="cie10-list">
+          <div *ngFor="let item of filtrarCie10()"
+               class="cie10-item"
+               [class.selected]="cie10Seleccionado?.codigo === item.codigo"
+               (click)="seleccionarCie10(item)">
+            <span class="cie-code">{{ item.codigo }}</span>
+            <div class="cie-details">
+              <span class="cie-desc">{{ item.descripcion }}</span>
+              <span class="cie-cat">{{ item.categoria }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-actions mt-3">
+          <button class="btn btn-secondary" (click)="cerrarModalDiagnostico()">Cancelar</button>
+          <button class="btn btn-primary" (click)="pasarACups()" [disabled]="!cie10Seleccionado">
+            Siguiente: Asignar Procedimiento CUPS →
+          </button>
+        </div>
+      </div>
+
+      <!-- Modal Body - PASO 3: Selección de Código CUPS (Colombia) -->
+      <div class="modal-body" *ngIf="pasoModal === 'cups'">
+        <div class="paso-header">
+          <button class="btn-back-step" (click)="pasoModal = 'cie10'">← Volver a CIE-10</button>
+          <span class="paso-instruccion"><strong>Paso 3 de 3:</strong> Asigna el procedimiento <strong>CUPS</strong> (Colombia):</span>
+        </div>
+
+        <div class="condicion-resumen" *ngIf="cie10Seleccionado">
+          <span class="badge-tag cie">CIE-10: {{ cie10Seleccionado.codigo }}</span>
+          <span class="summary-desc">{{ cie10Seleccionado.descripcion }}</span>
+        </div>
+
+        <!-- Buscador de CUPS -->
+        <div class="cie10-search">
+          <input type="text" [(ngModel)]="cupsFiltro" placeholder="Buscar por código CUPS (ej: 232101) o procedimiento (ej: resina)..." />
+        </div>
+
+        <!-- Lista de CUPS -->
+        <div class="cie10-list">
+          <div *ngFor="let item of filtrarCups()"
+               class="cie10-item"
+               [class.selected]="cupsSeleccionado?.codigo === item.codigo"
+               (click)="seleccionarCups(item)">
+            <span class="cie-code cups">{{ item.codigo }}</span>
+            <div class="cie-details">
+              <span class="cie-desc">{{ item.descripcion }}</span>
+              <span class="cie-cat">{{ item.categoria }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-actions mt-3">
+          <button class="btn btn-secondary" (click)="cerrarModalDiagnostico()">Cancelar</button>
+          <button class="btn btn-primary" (click)="finalizarDiagnostico()" [disabled]="!cupsSeleccionado">
+            Aplicar Diagnóstico (FDI + CIE-10 + CUPS)
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>

@@ -135,6 +135,39 @@
     background: rgba($error, 0.18);
   }
 }
+
+.btn-action {
+  padding: 0.4rem 0.75rem;
+  border-radius: 6px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+
+  &.cita {
+    background: #e8f6f6;
+    color: #0a4a4a;
+    border-color: #19a8a8;
+
+    &:hover {
+      background: #0a4a4a;
+      color: #ffffff;
+    }
+  }
+
+  &.hc {
+    background: #fffbf0;
+    color: #b87c00;
+    border-color: #f0a500;
+
+    &:hover {
+      background: #f0a500;
+      color: #0a4a4a;
+    }
+  }
+}
  
 // ── Modal ──────────────────────────────────────────────────
 .modal-overlay {

@@ -8,10 +8,13 @@ import { Router, RouterModule } from '@angular/router';
 import { Subject } from 'rxjs';
 import { takeUntil, finalize } from 'rxjs/operators';
 
+import { PatientHeaderComponent } from '../patient-header/patient-header';
+import { OdontogramaInteractiveComponent } from '../odontograma-interactive/odontograma-interactive';
+
 @Component({
   selector: 'app-historia-list',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, PatientHeaderComponent, OdontogramaInteractiveComponent],
   templateUrl: './historia-list.html',
   styleUrl: './historia-list.scss',
 })

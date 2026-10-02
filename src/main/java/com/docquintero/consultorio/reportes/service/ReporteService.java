@@ -19,14 +19,16 @@ public class ReporteService {
     public ReporteSummary obtenerResumen() {
         long totalPacientes = pacienteRepo.count();
         long totalCitas = citaRepo.count();
-        long completadas = citaRepo.findAll().stream().filter(c -> c.getEstado() == EstadoCita.ATENDIDA).count();
-        long canceladas = citaRepo.findAll().stream().filter(c -> c.getEstado() == EstadoCita.ANULADA).count();
+        long completadas = citaRepo.findAll().stream().filter(c -> c.getEstado() == EstadoCita.ATENDIDA || c.getEstado() == EstadoCita.CONFIRMADA).count();
+        long canceladas = citaRepo.findAll().stream().filter(c -> c.getEstado() == EstadoCita.ANULADA || c.getEstado() == EstadoCita.NO_ASISTIO).count();
+        double ingresos = completadas * 120000.0; // Estimado promedio por cita atendida ($120.000 COP)
 
         return ReporteSummary.builder()
                 .totalPacientes(totalPacientes)
                 .totalCitas(totalCitas)
                 .citasCompletadas(completadas)
                 .citasCanceladas(canceladas)
+                .totalIngresosEstimados(ingresos)
                 .build();
     }
 }

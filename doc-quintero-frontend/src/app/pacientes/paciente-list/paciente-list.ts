@@ -35,9 +35,6 @@ export class PacienteListComponent implements OnInit, OnDestroy {
     this.pacienteService.getPatients()
       .pipe(
         takeUntil(this.destroy$),
-        // finalize() SIEMPRE corre al terminar el observable,
-        // sin importar si fue éxito, error o cancelación.
-        // Antes: si el error no disparaba, isLoading quedaba en true para siempre.
         finalize(() => { this.isLoading = false; })
       )
       .subscribe({
@@ -65,6 +62,14 @@ export class PacienteListComponent implements OnInit, OnDestroy {
     }
   }
  
+  agendarCita(patientId: string): void {
+    this.router.navigate(['/citas/create'], { queryParams: { pacienteId: patientId } });
+  }
+
+  verHistoriaClinica(patientId: string): void {
+    this.router.navigate(['/historiaclinica/edit', patientId]);
+  }
+
   editPatient(id: string): void {
     this.router.navigate(['/pacientes/edit', id]);
   }

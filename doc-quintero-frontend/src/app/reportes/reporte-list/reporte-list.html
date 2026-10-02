@@ -1,45 +1,38 @@
 <div class="page-container">
   <div class="page-header">
     <div class="page-header-text">
-      <h1>Reportes y Estadísticas</h1>
-      <p>Análisis de desempeño del consultorio</p>
+      <h1>Reportes y Estadísticas Clínicas</h1>
+      <p>Indicadores clave de desempeño, agenda e ingresos — Consultorio Doc. Quintero</p>
     </div>
   </div>
 
-  <div class="form-container" style="margin-bottom: 2.5rem;">
-    <form [formGroup]="reportForm" (ngSubmit)="generateReport()" class="clinical-form">
-      <div class="form-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); align-items: flex-end;">
-        <div class="field-group">
-          <label>Fecha Inicio</label>
-          <input type="date" formControlName="startDate">
-        </div>
-        <div class="field-group">
-          <label>Fecha Fin</label>
-          <input type="date" formControlName="endDate">
-        </div>
-        <div class="field-group">
-          <button type="submit" class="btn btn-primary" [disabled]="reportForm.invalid || isLoadingReport" style="width: 100%;">
-            <span *ngIf="!isLoadingReport">Generar Reporte</span>
-            <span *ngIf="isLoadingReport" class="spinner"></span>
-          </button>
-        </div>
+  <!-- Alertas de estado -->
+  <div class="alert alert-success" *ngIf="successMessage">
+    {{ successMessage }}
+  </div>
+  <div class="alert alert-error" *ngIf="errorMessage">
+    {{ errorMessage }}
+  </div>
+
+  <!-- ═══════════ TARJETAS DE KPIS GLOBALES ═══════════ -->
+  <div class="report-summary" *ngIf="systemKpis">
+    <div class="summary-card">
+      <div class="summary-icon total">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
       </div>
-    </form>
-  </div>
+      <div class="summary-content">
+        <p class="summary-label">Pacientes Registrados</p>
+        <h4>{{ systemKpis.totalPacientes || 0 }}</h4>
+      </div>
+    </div>
 
-  <div class="loading-spinner" *ngIf="isLoadingReport" style="padding: 3rem; text-align: center;">
-    <div class="spinner"></div>
-    <p style="margin-top: 1rem; color: var(--text-muted);">Procesando datos...</p>
-  </div>
-
-  <div *ngIf="!isLoadingReport && summary" class="report-summary">
     <div class="summary-card">
       <div class="summary-icon total">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
       </div>
       <div class="summary-content">
-        <p class="summary-label">Total Citas</p>
-        <h4>{{ summary.totalAppointments }}</h4>
+        <p class="summary-label">Total Citas Históricas</p>
+        <h4>{{ systemKpis.totalCitas || 0 }}</h4>
       </div>
     </div>
 
@@ -48,18 +41,8 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
       </div>
       <div class="summary-content">
-        <p class="summary-label">Atendidas</p>
-        <h4>{{ summary.completedAppointments }}</h4>
-      </div>
-    </div>
-
-    <div class="summary-card">
-      <div class="summary-icon cancelled">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
-      </div>
-      <div class="summary-content">
-        <p class="summary-label">Anuladas</p>
-        <h4>{{ summary.cancelledAppointments }}</h4>
+        <p class="summary-label">Citas Atendidas</p>
+        <h4>{{ systemKpis.citasCompletadas || 0 }}</h4>
       </div>
     </div>
 
@@ -68,44 +51,124 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
       </div>
       <div class="summary-content">
-        <p class="summary-label">Ingresos</p>
-        <h4>$ {{ summary.totalRevenue | number:'1.0-0' }}</h4>
+        <p class="summary-label">Ingresos Estimados</p>
+        <h4>$ {{ systemKpis.totalIngresosEstimados | number:'1.0-0' }} COP</h4>
       </div>
     </div>
   </div>
 
-  <div *ngIf="!isLoadingReport && appointments.length > 0" class="list-container">
-    <div class="list-header" style="padding: 1.25rem; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
-      <h3 style="margin: 0; font-size: 1.1rem;">Detalle de Gestión</h3>
-      <button class="btn btn-secondary" (click)="exportReport()">Descargar CSV</button>
+  <!-- ═══════════ FORMULARIO DE FILTRADO POR FECHAS Y CRITERIOS ═══════════ -->
+  <div class="form-container" style="margin-bottom: 2rem; max-width: 100%;">
+    <form [formGroup]="reportForm" (ngSubmit)="generateReport()" class="clinical-form">
+      <div class="form-grid" style="grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); align-items: flex-end; gap: 1rem;">
+        <div class="field-group">
+          <label>Fecha Desde *</label>
+          <input type="date" formControlName="startDate">
+        </div>
+        <div class="field-group">
+          <label>Fecha Hasta *</label>
+          <input type="date" formControlName="endDate">
+        </div>
+        <div class="field-group">
+          <label>Especialidad / Tipo</label>
+          <select [(ngModel)]="filtroTipo" [ngModelOptions]="{standalone: true}" (change)="aplicarFiltros()">
+            <option value="TODOS">Todas las especialidades</option>
+            <option value="CONSULTA_GENERAL">Consulta General</option>
+            <option value="ORTODONCIA">Ortodoncia</option>
+            <option value="ENDODONCIA">Endodoncia</option>
+            <option value="ESTETICA">Estética Dental</option>
+            <option value="CIRUGIA">Cirugía Oral</option>
+          </select>
+        </div>
+        <div class="field-group">
+          <label>Estado de Cita</label>
+          <select [(ngModel)]="filtroEstado" [ngModelOptions]="{standalone: true}" (change)="aplicarFiltros()">
+            <option value="TODOS">Todos los estados</option>
+            <option value="ATENDIDA">Atendida</option>
+            <option value="CONFIRMADA">Confirmada</option>
+            <option value="RESERVADA">Reservada</option>
+            <option value="ANULADA">Anulada</option>
+            <option value="NO_ASISTIO">No Asistió</option>
+          </select>
+        </div>
+        <div class="field-group">
+          <button type="submit" class="btn btn-primary" [disabled]="reportForm.invalid || isLoadingReport" style="width: 100%; height: 44px;">
+            <span *ngIf="!isLoadingReport">Consultar Rango</span>
+            <span *ngIf="isLoadingReport" class="spinner"></span>
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <!-- Loading spinner -->
+  <div class="loading-spinner" *ngIf="isLoadingReport" style="padding: 3rem; text-align: center;">
+    <div class="spinner"></div>
+    <p style="margin-top: 1rem; color: var(--text-muted);">Consultando datos del servidor...</p>
+  </div>
+
+  <!-- ═══════════ RESUMEN DEL RANGO SELECCIONADO ═══════════ -->
+  <div *ngIf="!isLoadingReport" class="rango-metrics-bar" style="display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 1.5rem;">
+    <div class="metric-pill">Total en Rango: <strong>{{ rangoSummary.totalCitas }}</strong></div>
+    <div class="metric-pill success">Atendidas: <strong>{{ rangoSummary.atendidas }}</strong></div>
+    <div class="metric-pill pending">Pendientes: <strong>{{ rangoSummary.pendientes }}</strong></div>
+    <div class="metric-pill error">Anuladas: <strong>{{ rangoSummary.anuladas }}</strong></div>
+    <div class="metric-pill revenue">Ingresos Rango: <strong>$ {{ rangoSummary.ingresosEstimados | number:'1.0-0' }} COP</strong></div>
+  </div>
+
+  <!-- ═══════════ TABLA DE DETALLE Y EXPORTACIÓN ═══════════ -->
+  <div *ngIf="!isLoadingReport && filteredAppointments.length > 0" class="list-container">
+    <div class="list-header" style="padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; background: #fdfdfd;">
+      <h3 style="margin: 0; font-size: 1.1rem; font-family: 'Fraunces', serif; color: var(--teal-deep);">
+        Detalle de Registro ({{ filteredAppointments.length }} registros)
+      </h3>
+      <button class="btn btn-secondary" (click)="exportReport()" style="display: inline-flex; align-items: center; gap: 0.4rem;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+        Exportar CSV
+      </button>
     </div>
+
     <div class="table-responsive">
       <table class="data-table">
         <thead>
           <tr>
             <th>Paciente</th>
-            <th>Fecha</th>
-            <th>Tipo</th>
+            <th>Fecha y Hora</th>
+            <th>Especialidad</th>
             <th>Estado</th>
-            <th>Observaciones</th>
+            <th>Duración</th>
+            <th>Notas / Observaciones</th>
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let appointment of appointments">
-            <td><strong>{{ appointment.patientName }}</strong></td>
+          <tr *ngFor="let appointment of filteredAppointments">
+            <td>
+              <strong style="color: var(--teal-deep);">{{ appointment.patientName || 'Paciente' }}</strong>
+            </td>
             <td>{{ formatDate(appointment.fechaHora) }}</td>
-            <td><span class="badge">{{ appointment.tipo }}</span></td>
+            <td><span class="badge badge-teal">{{ appointment.tipo || 'CONSULTA' }}</span></td>
             <td>
               <span class="badge" 
-                    [class.status-active]="appointment.status === 'CONFIRMADA' || appointment.status === 'ATENDIDA'"
-                    [class.status-error]="appointment.status === 'CANCELADA' || appointment.status === 'ANULADA'">
-                {{ appointment.status }}
+                    [class.status-active]="(appointment.estado || appointment.status) === 'ATENDIDA' || (appointment.estado || appointment.status) === 'CONFIRMADA'"
+                    [class.status-pending]="(appointment.estado || appointment.status) === 'RESERVADA' || (appointment.estado || appointment.status) === 'PENDIENTE'"
+                    [class.status-error]="(appointment.estado || appointment.status) === 'ANULADA' || (appointment.estado || appointment.status) === 'NO_ASISTIO' || (appointment.estado || appointment.status) === 'CANCELADA'">
+                {{ appointment.estado || appointment.status }}
               </span>
             </td>
-            <td>{{ appointment.notes || '—' }}</td>
+            <td>{{ appointment.duracionBloque || appointment.duracionMinutos || 30 }} min</td>
+            <td style="max-width: 250px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" [title]="appointment.notas || appointment.notes || ''">
+              {{ appointment.notas || appointment.notes || '—' }}
+            </td>
           </tr>
         </tbody>
       </table>
     </div>
+  </div>
+
+  <!-- Estado Vacío -->
+  <div class="empty-state" *ngIf="!isLoadingReport && filteredAppointments.length === 0" style="margin-top: 1rem;">
+    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+    <h3>No se encontraron registros en el rango seleccionado</h3>
+    <p>Prueba ajustando las fechas o los filtros de búsqueda.</p>
   </div>
 </div>

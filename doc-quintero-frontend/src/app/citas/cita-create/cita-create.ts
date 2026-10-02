@@ -3,7 +3,7 @@ import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angula
 import { AppointmentService } from '../../services/appointment.service';
 import { PatientService } from '../../services/patient.service';
 import { PatientResponse } from '../../models/patient.model';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { Subject } from 'rxjs';
 import { takeUntil, finalize } from 'rxjs/operators';
@@ -26,7 +26,8 @@ export class CitaCreateComponent implements OnInit, OnDestroy {
     private fb: FormBuilder,
     private appointmentService: AppointmentService,
     private patientService: PatientService,
-    public router: Router
+    public router: Router,
+    private route: ActivatedRoute
   ) {
     this.appointmentForm = this.fb.group({
       pacienteId: ['', Validators.required],
@@ -43,11 +44,24 @@ export class CitaCreateComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.loadPatients();
+    this.checkQueryParams();
   }
 
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
+  }
+
+  checkQueryParams(): void {
+    this.route.queryParams.pipe(takeUntil(this.destroy$)).subscribe(params => {
+      if (params['pacienteId']) {
+        this.appointmentForm.patchValue({ pacienteId: params['pacienteId'] });
+      }
+      if (params['fecha'] && params['hora']) {
+        const fechaHoraIso = `${params['fecha']}T${params['hora']}:00`;
+        this.appointmentForm.patchValue({ fechaHora: fechaHoraIso.substring(0, 16) });
+      }
+    });
   }
 
   loadPatients(): void {

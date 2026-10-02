@@ -1,0 +1,174 @@
+<div class="agenda-container">
+  <!-- Topbar con selector de vistas, navegación de fechas y filtros -->
+  <div class="agenda-topbar">
+    <div class="view-selector">
+      <button [class.active]="vistaActual === 'semanal'" (click)="vistaActual = 'semanal'">Semanal</button>
+      <button [class.active]="vistaActual === 'diaria'" (click)="vistaActual = 'diaria'">Diaria</button>
+      <button routerLink="/citas/list">Vista Lista</button>
+    </div>
+
+    <div class="date-controls">
+      <button class="nav-btn" (click)="vistaActual === 'diaria' ? diaAnterior() : semanaAnterior()">&lt;</button>
+      <button class="today-btn" (click)="hoy()">Hoy</button>
+      <button class="nav-btn" (click)="vistaActual === 'diaria' ? diaSiguiente() : semanaSiguiente()">&gt;</button>
+      <span class="range-indicator">{{ getTituloRango() }}</span>
+    </div>
+
+    <div class="right-controls">
+      <div class="doctor-filter">
+        <select [(ngModel)]="odontologoSeleccionado" (change)="cambiarOdontologo()">
+          <option *ngFor="let doc of odontologos" [value]="doc.id">{{ doc.nombre }}</option>
+        </select>
+      </div>
+      <button class="btn-nueva-cita" (click)="nuevaCita(getFechaActualStr(), '08:00')">
+        + Agendar Cita
+      </button>
+    </div>
+  </div>
+
+  <div class="alert alert-error" *ngIf="errorMessage" style="margin-bottom: 1rem;">
+    {{ errorMessage }}
+  </div>
+
+  <!-- Loading State -->
+  <div class="loading-state" *ngIf="isLoading">
+    <div class="spinner"></div>
+    <span>Cargando agenda médica...</span>
+  </div>
+
+  <!-- ═══════════ VISTA SEMANAL ═══════════ -->
+  <div class="agenda-grid-scroll" *ngIf="!isLoading && vistaActual === 'semanal'">
+    <table class="agenda-table">
+      <thead>
+        <tr>
+          <th class="time-col">Hora</th>
+          <th *ngFor="let dia of diasSemana" class="day-col">
+            <div class="day-label">{{ dia.label }}</div>
+            <div class="day-sub">{{ dia.fechaStr }}</div>
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let hora of intervalosHorarios">
+          <td class="time-cell">{{ hora }}</td>
+          <td *ngFor="let dia of diasSemana" class="slot-cell" (click)="nuevaCita(dia.fechaStr, hora, $event)">
+            <div class="slot-content">
+              <!-- Tarjetas de citas en este slot -->
+              <div *ngFor="let cita of getCitasEnSlot(dia.fechaStr, hora)"
+                   class="cita-card"
+                   [class.status-atendida]="(cita.estado || cita.status) === 'ATENDIDA'"
+                   [class.status-reservada]="(cita.estado || cita.status) === 'RESERVADA' || (cita.estado || cita.status) === 'CONFIRMADA'"
+                   [class.status-reprogramada]="(cita.estado || cita.status) === 'REPROGRAMADA'"
+                   [class.status-anulada]="(cita.estado || cita.status) === 'ANULADA' || (cita.estado || cita.status) === 'NO_ASISTIO'"
+                   (click)="verCitaDetalle(cita, $event)"
+                   [title]="(cita.patientName || 'Paciente') + ' - ' + cita.tipo">
+                <div class="cita-header">
+                  <span class="cita-patient">{{ cita.patientName || 'Paciente' }}</span>
+                  <span class="cita-badge">{{ cita.duracionBloque || cita.duracionMinutos || 30 }}m</span>
+                </div>
+                <div class="cita-details">
+                  <span class="cita-type">{{ cita.tipo }}</span>
+                  <span class="cita-status-pill">{{ cita.estado || cita.status }}</span>
+                </div>
+              </div>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ═══════════ VISTA DIARIA ═══════════ -->
+  <div class="agenda-grid-scroll daily-view" *ngIf="!isLoading && vistaActual === 'diaria'">
+    <table class="agenda-table">
+      <thead>
+        <tr>
+          <th class="time-col">Hora</th>
+          <th class="day-col active-day">
+            <div class="day-label">{{ getTituloRango() }}</div>
+            <div class="day-sub">{{ getFechaActualStr() }}</div>
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let hora of intervalosHorarios">
+          <td class="time-cell">{{ hora }}</td>
+          <td class="slot-cell" (click)="nuevaCita(getFechaActualStr(), hora, $event)">
+            <div class="slot-content">
+              <div *ngFor="let cita of getCitasEnSlot(getFechaActualStr(), hora)"
+                   class="cita-card daily-card"
+                   [class.status-atendida]="(cita.estado || cita.status) === 'ATENDIDA'"
+                   [class.status-reservada]="(cita.estado || cita.status) === 'RESERVADA' || (cita.estado || cita.status) === 'CONFIRMADA'"
+                   [class.status-reprogramada]="(cita.estado || cita.status) === 'REPROGRAMADA'"
+                   [class.status-anulada]="(cita.estado || cita.status) === 'ANULADA' || (cita.estado || cita.status) === 'NO_ASISTIO'"
+                   (click)="verCitaDetalle(cita, $event)">
+                <div class="cita-header">
+                  <strong class="cita-patient">{{ cita.patientName || 'Paciente' }}</strong>
+                  <span class="badge">{{ cita.estado || cita.status }}</span>
+                </div>
+                <div class="cita-body-info">
+                  <span>🦷 {{ cita.tipo }}</span>
+                  <span *ngIf="cita.notas || cita.notes">📝 {{ cita.notas || cita.notes }}</span>
+                </div>
+              </div>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ═══════════ MODAL DETALLE DE CITA ═══════════ -->
+  <div class="modal-backdrop" *ngIf="selectedAppointment" (click)="cerrarModal()">
+    <div class="modal-card" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>Detalle de la Cita Médica</h3>
+        <button class="btn-close" (click)="cerrarModal()">&times;</button>
+      </div>
+
+      <div class="modal-body">
+        <div class="modal-row">
+          <span class="label">Paciente:</span>
+          <strong class="val">{{ selectedAppointment.patientName || 'Paciente' }}</strong>
+        </div>
+        <div class="modal-row">
+          <span class="label">Fecha y Hora:</span>
+          <span class="val">{{ selectedAppointment.fechaHora | date:'dd MMM yyyy, HH:mm' }}</span>
+        </div>
+        <div class="modal-row">
+          <span class="label">Especialidad:</span>
+          <span class="val badge badge-teal">{{ selectedAppointment.tipo }}</span>
+        </div>
+        <div class="modal-row">
+          <span class="label">Estado:</span>
+          <span class="val badge" 
+                [class.status-active]="(selectedAppointment.estado || selectedAppointment.status) === 'ATENDIDA'"
+                [class.status-pending]="(selectedAppointment.estado || selectedAppointment.status) === 'RESERVADA' || (selectedAppointment.estado || selectedAppointment.status) === 'CONFIRMADA'"
+                [class.status-error]="(selectedAppointment.estado || selectedAppointment.status) === 'ANULADA' || (selectedAppointment.estado || selectedAppointment.status) === 'NO_ASISTIO'">
+            {{ selectedAppointment.estado || selectedAppointment.status }}
+          </span>
+        </div>
+        <div class="modal-row" *ngIf="selectedAppointment.notas || selectedAppointment.notes">
+          <span class="label">Notas:</span>
+          <span class="val">{{ selectedAppointment.notas || selectedAppointment.notes }}</span>
+        </div>
+        <div class="modal-row" *ngIf="selectedAppointment.comentarioInterno">
+          <span class="label">Comentario Interno:</span>
+          <span class="val text-muted">{{ selectedAppointment.comentarioInterno }}</span>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-secondary" (click)="irHistoriaClinica(selectedAppointment.pacienteId)">
+          📋 Historia Clínica
+        </button>
+        <button class="btn btn-primary" (click)="reprogramarCita(selectedAppointment.id)">
+          🗓️ Reprogramar
+        </button>
+        <button class="btn btn-danger" (click)="cancelarCita(selectedAppointment.id)">
+          ❌ Anular
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,33 +1,52 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, FormsModule } from '@angular/forms';
 import { ReportService } from '../../services/report.service';
-import { AppointmentReportItem } from '../../models/report.model';
+import { AppointmentReportItem, ReportSummary } from '../../models/report.model';
 import { Subject } from 'rxjs';
 import { takeUntil, finalize } from 'rxjs/operators';
 
-interface ReportSummary {
-  totalAppointments: number;
-  completedAppointments: number;
-  cancelledAppointments: number;
-  totalRevenue: number;
+export interface RangoSummary {
+  totalCitas: number;
+  atendidas: number;
+  anuladas: number;
+  pendientes: number;
+  ingresosEstimados: number;
 }
 
 @Component({
   standalone: true,
   selector: 'app-reporte-list',
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule],
   templateUrl: './reporte-list.html',
   styleUrl: './reporte-list.scss',
 })
 export class ReporteListComponent implements OnInit, OnDestroy {
   reportForm: FormGroup;
   appointments: AppointmentReportItem[] = [];
-  summary: ReportSummary | null = null;
+  filteredAppointments: AppointmentReportItem[] = [];
+  
+  // KPIs del sistema (backend /api/reportes/resumen)
+  systemKpis: ReportSummary | null = null;
+
+  // Métricas del rango seleccionado
+  rangoSummary: RangoSummary = {
+    totalCitas: 0,
+    atendidas: 0,
+    anuladas: 0,
+    pendientes: 0,
+    ingresosEstimados: 0
+  };
+
+  // Filtros adicionales
+  filtroTipo: string = 'TODOS';
+  filtroEstado: string = 'TODOS';
+
   isLoadingReport = false;
-  isLoadingExport = false;
+  isLoadingKpis = false;
   errorMessage = '';
   successMessage = '';
+
   private destroy$ = new Subject<void>();
 
   constructor(private fb: FormBuilder, private reportService: ReportService) {
@@ -42,6 +61,7 @@ export class ReporteListComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    this.loadSystemKpis();
     this.generateReport();
   }
 
@@ -50,12 +70,27 @@ export class ReporteListComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
+  loadSystemKpis(): void {
+    this.isLoadingKpis = true;
+    this.reportService.getReportSummary()
+      .pipe(takeUntil(this.destroy$), finalize(() => this.isLoadingKpis = false))
+      .subscribe({
+        next: (data) => {
+          this.systemKpis = data;
+        },
+        error: (err) => {
+          console.error('Error cargando KPIs del sistema:', err);
+        }
+      });
+  }
+
   generateReport(): void {
     if (this.reportForm.valid) {
       this.isLoadingReport = true;
       this.errorMessage = '';
+      this.successMessage = '';
       const { startDate, endDate } = this.reportForm.value;
-      
+
       this.reportService.getAppointmentsReport(startDate, endDate)
         .pipe(
           takeUntil(this.destroy$),
@@ -63,69 +98,79 @@ export class ReporteListComponent implements OnInit, OnDestroy {
         )
         .subscribe({
           next: (data: AppointmentReportItem[]) => {
-            this.appointments = data;
-            this.calculateSummary();
+            this.appointments = data || [];
+            this.aplicarFiltros();
           },
           error: (error: any) => {
-            this.errorMessage = 'Error al generar reporte. Por favor intenta nuevamente.';
-            console.error('Error generating report:', error);
+            this.errorMessage = 'Error al consultar reporte por fechas.';
+            console.error('Error generando reporte:', error);
           },
         });
     }
   }
 
-  calculateSummary(): void {
-    const total = this.appointments.length;
-    const completed = this.appointments.filter(a => a.status === 'CONFIRMADA').length;
-    const cancelled = this.appointments.filter(a => a.status === 'CANCELADA').length;
+  aplicarFiltros(): void {
+    let result = [...this.appointments];
 
-    this.summary = {
-      totalAppointments: total,
-      completedAppointments: completed,
-      cancelledAppointments: cancelled,
-      totalRevenue: completed * 50 // Valor estimado por cita
+    if (this.filtroTipo !== 'TODOS') {
+      result = result.filter(a => a.tipo === this.filtroTipo);
+    }
+
+    if (this.filtroEstado !== 'TODOS') {
+      result = result.filter(a => (a.estado === this.filtroEstado || a.status === this.filtroEstado));
+    }
+
+    this.filteredAppointments = result;
+    this.calcularMeticasRango();
+  }
+
+  calcularMeticasRango(): void {
+    const total = this.filteredAppointments.length;
+    const atendidas = this.filteredAppointments.filter(a => {
+      const st = a.estado || a.status;
+      return st === 'ATENDIDA' || st === 'CONFIRMADA';
+    }).length;
+
+    const anuladas = this.filteredAppointments.filter(a => {
+      const st = a.estado || a.status;
+      return st === 'ANULADA' || st === 'NO_ASISTIO' || st === 'CANCELADA';
+    }).length;
+
+    const pendientes = this.filteredAppointments.filter(a => {
+      const st = a.estado || a.status;
+      return st === 'RESERVADA' || st === 'PENDIENTE';
+    }).length;
+
+    const ingresos = atendidas * 120000; // $120.000 COP estimación por cita atendida
+
+    this.rangoSummary = {
+      totalCitas: total,
+      atendidas: atendidas,
+      anuladas: anuladas,
+      pendientes: pendientes,
+      ingresosEstimados: ingresos
     };
   }
 
   exportReport(): void {
-    if (this.appointments.length === 0) {
-      this.errorMessage = 'No hay datos para exportar';
+    if (this.filteredAppointments.length === 0) {
+      this.errorMessage = 'No hay datos en el reporte para exportar.';
       return;
     }
 
-    this.isLoadingExport = true;
     const { startDate, endDate } = this.reportForm.value;
-    
-    this.reportService.exportReportAsCSV(startDate, endDate)
-      .pipe(
-        takeUntil(this.destroy$),
-        finalize(() => { this.isLoadingExport = false; })
-      )
-      .subscribe({
-        next: (blob) => {
-          this.downloadFile(blob, `reporte-citas-${startDate}-${endDate}.csv`);
-          this.successMessage = 'Reporte exportado exitosamente';
-        },
-        error: (error) => {
-          this.errorMessage = 'Error al exportar reporte';
-          console.error('Error exporting report:', error);
-        },
-      });
+    const filename = `reporte-gestion-citas-${startDate}-al-${endDate}.csv`;
+    this.reportService.exportToCSV(this.filteredAppointments, filename);
+    this.successMessage = '✅ Reporte descargado exitosamente como archivo CSV.';
+    setTimeout(() => this.successMessage = '', 3500);
   }
 
-  private downloadFile(blob: Blob, filename: string): void {
-    const url = window.URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = filename;
-    link.click();
-    window.URL.revokeObjectURL(url);
-  }
-
-  formatDate(date: string): string {
-    return new Date(date).toLocaleDateString('es-ES', {
+  formatDate(dateStr: string): string {
+    if (!dateStr) return '—';
+    const d = new Date(dateStr);
+    return d.toLocaleDateString('es-CO', {
       year: 'numeric',
-      month: 'long',
+      month: 'short',
       day: 'numeric',
       hour: '2-digit',
       minute: '2-digit'

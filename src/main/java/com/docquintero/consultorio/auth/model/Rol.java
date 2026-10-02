@@ -4,6 +4,7 @@ public enum Rol {
     ADMINISTRADOR,
     ODONTOLOGO,
     AUXILIAR,
-    ADMIN,      // Aliases just in case
+    RECEPCIONISTA,
+    ADMIN,      // Aliases
     ASISTENTE
 }

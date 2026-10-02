@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { AppointmentReportItem, ReportSummary, ReportFilter } from '../models/report.model';
+import { AppointmentReportItem, ReportSummary } from '../models/report.model';
 
 @Injectable({
   providedIn: 'root'
@@ -12,7 +12,7 @@ export class ReportService {
   constructor(private http: HttpClient) {}
 
   /**
-   * Get appointments report for admin
+   * Obtener citas por rango de fechas
    */
   getAppointmentsReport(startDate: string, endDate: string): Observable<AppointmentReportItem[]> {
     return this.http.get<AppointmentReportItem[]>('http://localhost:8080/api/citas/rango', {
@@ -21,16 +21,33 @@ export class ReportService {
   }
 
   /**
-   * Get report summary
+   * Obtener resumen de KPIs generales del consultorio
    */
   getReportSummary(): Observable<ReportSummary> {
     return this.http.get<ReportSummary>(`${this.apiUrl}/resumen`);
   }
 
   /**
-   * Export report as CSV (Stub)
+   * Exportar lista de citas como archivo CSV descargable
    */
-  exportReportAsCSV(startDate: string, endDate: string): Observable<Blob> {
-    return this.http.get(`${this.apiUrl}/resumen`, { responseType: 'blob' });
+  exportToCSV(items: AppointmentReportItem[], filename: string): void {
+    const headers = ['Paciente', 'Fecha y Hora', 'Tipo de Consulta', 'Estado', 'Duración (Min)', 'Notas'];
+    const rows = items.map(item => [
+      `"${item.patientName || 'Paciente'}"`,
+      `"${new Date(item.fechaHora).toLocaleString('es-CO')}"`,
+      `"${item.tipo || ''}"`,
+      `"${item.estado || item.status || ''}"`,
+      `"${item.duracionBloque || item.duracionMinutos || 30}"`,
+      `"${(item.notas || item.notes || '').replace(/"/g, '""')}"`
+    ]);
+
+    const csvContent = '\uFEFF' + [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(url);
   }
 }

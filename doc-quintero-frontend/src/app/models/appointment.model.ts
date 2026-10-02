@@ -11,17 +11,22 @@ export interface AppointmentRequest {
 export interface AppointmentResponse {
   id: string;
   pacienteId: string;
-  patientName: string;
+  patientName?: string;
+  odontologoId?: string;
   fechaHora: string;
   tipo: string;
-  status: string;
-  duracionBloque: number;
-  notes: string;
+  estado?: string;
+  status?: string;
+  duracionMinutos?: number;
+  duracionBloque?: number;
+  notas?: string;
+  notes?: string;
   comentarioInterno?: string;
-  notificarPaciente: boolean;
-  history: any[];
-  createdAt: string;
-  updatedAt: string;
+  notificarPaciente?: boolean;
+  historialEstados?: any[];
+  history?: any[];
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface AppointmentListItem {

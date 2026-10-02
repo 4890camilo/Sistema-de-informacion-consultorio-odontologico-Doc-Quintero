@@ -55,9 +55,26 @@
       Volver a Pacientes
     </button>
 
-    <div class="patient-header">
-      <h2>{{ selectedPatient.firstName }} {{ selectedPatient.lastName }}</h2>
-      <p class="patient-id">{{ selectedPatient.identificationNumber }}</p>
+    <div class="patient-header" *ngIf="selectedPatient">
+      <!-- Header Azul del Paciente (Estilo Dentalink) -->
+      <app-patient-header 
+        [patient]="{
+          id: selectedPatient.id || '3252',
+          identificationNumber: selectedPatient.identificationNumber,
+          fullName: selectedPatient.firstName + ' ' + selectedPatient.lastName,
+          ageYears: 29,
+          ageMonths: 8,
+          agreement: selectedPatient.insurance || 'Sin convenio',
+          medicalAlerts: selectedPatient.allergies ? [selectedPatient.allergies] : [],
+          diseases: selectedPatient.chronicDiseases ? [selectedPatient.chronicDiseases] : [],
+          medications: selectedPatient.currentMedications ? [selectedPatient.currentMedications] : []
+        }">
+      </app-patient-header>
+
+      <!-- Odontograma Continuo e Interactivo (Estilo Dentalink) -->
+      <div style="margin-top: 15px; margin-bottom: 25px;">
+        <app-odontograma-interactive [historiaClinicaId]="selectedPatient.id"></app-odontograma-interactive>
+      </div>
     </div>
 
     <div class="loading-spinner" *ngIf="isLoadingHistory">

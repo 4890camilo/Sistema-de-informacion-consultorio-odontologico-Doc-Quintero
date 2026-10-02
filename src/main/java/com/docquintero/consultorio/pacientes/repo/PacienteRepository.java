@@ -13,5 +13,5 @@ public interface PacienteRepository extends MongoRepository<Paciente, String> {
     @Query("{ '$or': [ { 'firstName': { '$regex': ?0, '$options': 'i' } }, { 'lastName': { '$regex': ?0, '$options': 'i' } }, { 'identificationNumber': { '$regex': ?0, '$options': 'i' } } ], 'active': { '$ne': false } }")
     List<Paciente> searchActive(String text);
     
-    List<Paciente> findAll();
+    List<Paciente> findByActiveTrue();
 }

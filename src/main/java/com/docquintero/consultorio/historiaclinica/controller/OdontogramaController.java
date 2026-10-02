@@ -13,35 +13,37 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/historia-clinica/{hcId}/odontograma")
-@Tag(name = "Odontograma", description = "Versiones del odontograma por historia clínica")
+@RequestMapping("/api/historia-clinica")
+@Tag(name = "Odontograma", description = "Versionado y registro gráfico de odontogramas")
 public class OdontogramaController {
 
     @Autowired
     private IOdontogramaService service;
 
-    @GetMapping
-    @Operation(summary = "Obtener todas las versiones del odontograma")
-    public ResponseEntity<List<OdontogramaResponse>> listarVersiones(@PathVariable String hcId) {
-        return ResponseEntity.ok(service.listarVersiones(hcId));
+    @PostMapping("/{hcId}/odontograma")
+    @Operation(summary = "Crear nueva versión de odontograma")
+    public ResponseEntity<OdontogramaResponse> guardarOdontograma(
+            @PathVariable String hcId,
+            @Valid @RequestBody OdontogramaRequest request) {
+        return ResponseEntity.ok(service.crearNuevaVersion(hcId, request));
     }
 
-    @GetMapping("/actual")
-    @Operation(summary = "Obtener versión más reciente del odontograma")
+    @GetMapping("/{hcId}/odontograma/actual")
+    @Operation(summary = "Obtener odontograma actual activo")
     public ResponseEntity<OdontogramaResponse> obtenerActual(@PathVariable String hcId) {
         return ResponseEntity.ok(service.obtenerActual(hcId));
     }
 
-    @PostMapping
-    @Operation(summary = "Crear nueva versión de odontograma")
-    public ResponseEntity<OdontogramaResponse> crear(@PathVariable String hcId, @Valid @RequestBody OdontogramaRequest request) {
-        return ResponseEntity.ok(service.crearNuevaVersion(hcId, request));
+    @GetMapping("/{hcId}/odontograma")
+    @Operation(summary = "Historial de versiones de odontograma")
+    public ResponseEntity<List<OdontogramaResponse>> obtenerHistorial(@PathVariable String hcId) {
+        return ResponseEntity.ok(service.listarVersiones(hcId));
     }
 
-    @PatchMapping("/{oid}/anular")
+    @PatchMapping("/odontograma/{id}/anular")
     @Operation(summary = "Anular versión de odontograma")
-    public ResponseEntity<Void> anular(@PathVariable String oid) {
-        service.anularVersion(oid);
+    public ResponseEntity<Void> anular(@PathVariable String id) {
+        service.anularVersion(id);
         return ResponseEntity.noContent().build();
     }
 }

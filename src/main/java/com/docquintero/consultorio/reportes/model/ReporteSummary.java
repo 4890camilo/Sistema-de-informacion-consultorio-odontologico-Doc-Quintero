@@ -14,4 +14,5 @@ public class ReporteSummary {
     private long totalCitas;
     private long citasCompletadas;
     private long citasCanceladas;
+    private double totalIngresosEstimados;
 }

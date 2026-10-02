@@ -8,8 +8,8 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -44,9 +44,15 @@ public class CitaController {
     @GetMapping("/rango")
     @Operation(summary = "Filtrar citas por rango de fechas")
     public ResponseEntity<List<CitaResponse>> listarPorRango(
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime desde,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime hasta) {
-        return ResponseEntity.ok(service.listarPorRango(desde, hasta));
+            @RequestParam(required = false) String desde,
+            @RequestParam(required = false) String hasta) {
+        LocalDateTime desdeLdt = (desde != null && !desde.isBlank()) 
+                ? (desde.contains("T") ? LocalDateTime.parse(desde) : LocalDateTime.parse(desde + "T00:00:00")) 
+                : LocalDateTime.now().minusMonths(1);
+        LocalDateTime hastaLdt = (hasta != null && !hasta.isBlank()) 
+                ? (hasta.contains("T") ? LocalDateTime.parse(hasta) : LocalDateTime.parse(hasta + "T23:59:59")) 
+                : LocalDateTime.now().plusMonths(1);
+        return ResponseEntity.ok(service.listarPorRango(desdeLdt, hastaLdt));
     }
 
     @PostMapping
@@ -59,6 +65,17 @@ public class CitaController {
     @Operation(summary = "Actualizar cita")
     public ResponseEntity<CitaResponse> actualizar(@PathVariable String id, @Valid @RequestBody CitaRequest request) {
         return ResponseEntity.ok(service.actualizar(id, request));
+    }
+
+    @PutMapping("/{id}/reschedule")
+    @Operation(summary = "Reprogramar fecha y hora de la cita")
+    public ResponseEntity<CitaResponse> reprogramar(
+            @PathVariable String id,
+            @RequestParam String newDateTime) {
+        LocalDateTime fechaHora = newDateTime.contains("T") 
+                ? LocalDateTime.parse(newDateTime.substring(0, 16)) 
+                : LocalDateTime.parse(newDateTime + "T00:00:00");
+        return ResponseEntity.ok(service.reprogramar(id, fechaHora));
     }
 
     @PatchMapping("/{id}/estado")

@@ -22,6 +22,8 @@ public class HistoriaClinica {
     
     private Anamnesis anamnesis;
     
+    private java.util.List<String> diagnosticosCie10;
+    
     // El odontograma y periodontograma se manejan como colecciones separadas 
     // o versiones vinculadas a esta HC por pacienteId.
     

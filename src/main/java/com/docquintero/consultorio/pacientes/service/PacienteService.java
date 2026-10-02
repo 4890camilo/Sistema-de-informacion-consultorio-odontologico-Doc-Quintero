@@ -24,7 +24,7 @@ public class PacienteService implements IPacienteService {
         if (q != null && !q.isEmpty()) {
             pacientes = repo.searchActive(q);
         } else {
-            pacientes = repo.findAll();
+            pacientes = repo.findByActiveTrue();
         }
         return pacientes.stream().map(this::mapToResponse).collect(Collectors.toList());
     }

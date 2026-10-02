@@ -40,7 +40,7 @@ export class LoginComponent {
             this.authService.saveRoles(response.roles || []);
 
             const roles = response.roles || [];
-            if (roles.includes('ADMINISTRADOR')) {
+            if (roles.includes('ADMINISTRADOR') || roles.includes('ADMIN')) {
               this.router.navigate(['/pacientes/list']);
             } else if (roles.includes('AUXILIAR')) {
               this.router.navigate(['/citas/list']);

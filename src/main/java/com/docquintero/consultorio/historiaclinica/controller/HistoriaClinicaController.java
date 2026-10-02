@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/historia-clinica")
-@Tag(name = "Historia Clínica", description = "Gestión de historias clínicas de pacientes")
+@Tag(name = "Historia Clínica", description = "Gestión de historias clínicas odontológicas")
 public class HistoriaClinicaController {
 
     @Autowired

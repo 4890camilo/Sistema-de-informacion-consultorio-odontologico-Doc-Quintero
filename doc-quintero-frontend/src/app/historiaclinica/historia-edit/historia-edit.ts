@@ -9,10 +9,13 @@ import { CommonModule } from '@angular/common';
 import { Subject } from 'rxjs';
 import { takeUntil, finalize } from 'rxjs/operators';
 
+import { PatientHeaderComponent } from '../patient-header/patient-header';
+import { OdontogramaInteractiveComponent } from '../odontograma-interactive/odontograma-interactive';
+
 @Component({
   selector: 'app-historia-edit',
   standalone: true,
-  imports: [ReactiveFormsModule, CommonModule],
+  imports: [ReactiveFormsModule, CommonModule, PatientHeaderComponent, OdontogramaInteractiveComponent],
   templateUrl: './historia-edit.html',
   styleUrl: './historia-edit.scss',
 })
@@ -35,15 +38,20 @@ export class HistoriaEditComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute
   ) {
     this.historyForm = this.fb.group({
-      reasonForConsultation: ['', Validators.required],
-      currentIllness: ['', Validators.required],
-      pastMedicalHistory: [''],
-      familyHistory: [''],
-      medications: [''],
-      allergies: [''],
-      dentalHistory: [''],
-      extraoralExam: [''],
-      intraoralExam: ['']
+      anamnesis: this.fb.group({
+        motivoConsulta: ['', Validators.required],
+        enTratamientoMedico: [false],
+        detalleTratamiento: [''],
+        medicamentos: [''],
+        alergias: [''],
+        enfermedadesSistemicas: [[]],
+        habitos: [[]],
+        antecedentesQuirurgicos: [''],
+        antecedentesOdontologicos: [''],
+        embarazo: [false],
+        alertasMedicas: [''],
+        comentarios: ['']
+      })
     });
   }
 
@@ -59,6 +67,7 @@ export class HistoriaEditComponent implements OnInit, OnDestroy {
 
   loadData(): void {
     this.isLoadingPage = true;
+    this.errorMessage = '';
     Promise.all([
       this.loadPatient(),
       this.loadMedicalHistory()
@@ -66,7 +75,6 @@ export class HistoriaEditComponent implements OnInit, OnDestroy {
       this.isLoadingPage = false;
     }).catch((error: any) => {
       this.isLoadingPage = false;
-      this.errorMessage = 'Error al cargar datos';
       console.error('Error loading data', error);
     });
   }
@@ -84,6 +92,7 @@ export class HistoriaEditComponent implements OnInit, OnDestroy {
           },
           error: (error: any) => {
             console.error('Error loading patient', error);
+            this.errorMessage = 'Error al cargar información del paciente';
             reject(error);
           }
         });
@@ -91,7 +100,7 @@ export class HistoriaEditComponent implements OnInit, OnDestroy {
   }
 
   loadMedicalHistory(): Promise<void> {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
       this.medicalHistoryService.getMedicalHistory(this.patientId)
         .pipe(
           takeUntil(this.destroy$),
@@ -99,36 +108,65 @@ export class HistoriaEditComponent implements OnInit, OnDestroy {
         )
         .subscribe({
           next: (data: MedicalHistoryResponse | null) => {
-            if (data) {
+            if (data && data.anamnesis) {
               this.medicalHistory = data;
-              this.historyForm.patchValue(data);
+              this.historyForm.patchValue({
+                anamnesis: data.anamnesis
+              });
             }
           },
           error: (error: any) => {
-            console.error('Error loading medical history', error);
-            reject(error);
+            console.log('Paciente sin historia clínica previa registrada aún. Se creará al guardar.');
+            this.medicalHistory = null;
           }
         });
     });
+  }
+
+  toggleEnfermedad(enfermedad: string): void {
+    const control = this.historyForm.get('anamnesis.enfermedadesSistemicas');
+    const current = (control?.value as string[]) || [];
+    if (current.includes(enfermedad)) {
+      control?.setValue(current.filter(e => e !== enfermedad));
+    } else {
+      control?.setValue([...current, enfermedad]);
+    }
+  }
+
+  isEnfermedadChecked(enfermedad: string): boolean {
+    const current = (this.historyForm.get('anamnesis.enfermedadesSistemicas')?.value as string[]) || [];
+    return current.includes(enfermedad);
   }
 
   submitForm(): void {
     if (this.historyForm.valid) {
       this.isLoadingForm = true;
       this.errorMessage = '';
-      this.medicalHistoryService.updateMedicalHistory(this.patientId, this.historyForm.value)
+      const formVal = this.historyForm.value;
+
+      const payload = {
+        pacienteId: this.patientId,
+        anamnesis: formVal.anamnesis
+      };
+
+      const request$ = this.medicalHistory && this.medicalHistory.id
+        ? this.medicalHistoryService.updateMedicalHistory(this.medicalHistory.id, payload)
+        : this.medicalHistoryService.createMedicalHistory(payload);
+
+      request$
         .pipe(
           takeUntil(this.destroy$),
           finalize(() => { this.isLoadingForm = false; })
         )
         .subscribe({
           next: (data: MedicalHistoryResponse) => {
-            this.successMessage = 'Historia clínica actualizada exitosamente. Redirigiendo...';
-            setTimeout(() => this.router.navigate(['/historiaclinica/list']), 1500);
+            this.medicalHistory = data;
+            this.successMessage = 'Historia clínica guardada exitosamente. Redirigiendo...';
+            setTimeout(() => this.router.navigate(['/historiaclinica/list']), 1200);
           },
           error: (error: any) => {
-            this.errorMessage = 'Error al actualizar historia clínica. Por favor intenta nuevamente.';
-            console.error('Error updating medical history', error);
+            this.errorMessage = 'Error al guardar la historia clínica. Por favor intenta nuevamente.';
+            console.error('Error saving medical history', error);
           }
         });
     }

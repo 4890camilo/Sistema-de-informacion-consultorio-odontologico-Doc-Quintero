@@ -84,14 +84,27 @@ export class PacienteEditComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$), finalize(() => this.isLoading = false))
       .subscribe({
         next: (patient: PatientResponse) => {
-          this.patientForm.patchValue(patient);
+          const payload = {
+            ...patient,
+            acudiente: patient.acudiente ?? {
+              nombre: '',
+              identificacion: '',
+              parentesco: '',
+              telefono: ''
+            }
+          };
+          this.patientForm.patchValue(payload);
         },
         error: () => this.errorMessage = 'Error al cargar el paciente.'
       });
   }
 
   onSubmit(): void {
-    if (this.patientForm.invalid) return;
+    if (this.patientForm.invalid) {
+      this.patientForm.markAllAsTouched();
+      this.errorMessage = 'Por favor completa todos los campos requeridos antes de guardar.';
+      return;
+    }
 
     this.isSaving = true;
     this.patientService.updatePatient(this.patientId, this.patientForm.getRawValue())

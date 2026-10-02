@@ -55,14 +55,26 @@ export class CitaListComponent implements OnInit, OnDestroy {
     });
   }
 
+  openHistoriaClinica(pacienteId?: string): void {
+    if (pacienteId) {
+      this.router.navigate(['/historiaclinica/edit', pacienteId]);
+    } else {
+      this.router.navigate(['/historiaclinica/list']);
+    }
+  }
+
   editAppointment(id: string): void {
     this.router.navigate(['/citas/edit', id]);
   }
 
   deleteAppointment(id: string): void {
     if (confirm('¿Estás seguro de cancelar esta cita?')) {
-      // Future implementation for delete
-      console.log('Delete appointment:', id);
+      this.appointmentService.cancelAppointment(id)
+        .pipe(takeUntil(this.destroy$))
+        .subscribe({
+          next: () => this.loadAppointments(),
+          error: (err) => console.error('Error cancelando cita:', err)
+        });
     }
   }
 
@@ -71,6 +83,7 @@ export class CitaListComponent implements OnInit, OnDestroy {
   }
 
   formatDate(dateString: string): string {
+    if (!dateString) return '—';
     const date = new Date(dateString);
     return date.toLocaleDateString('es-CO', {
       year: 'numeric',

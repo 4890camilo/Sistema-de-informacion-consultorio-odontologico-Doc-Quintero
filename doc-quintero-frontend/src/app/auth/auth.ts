@@ -11,6 +11,7 @@ export interface LoginRequest {
 export interface RegisterRequest {
   email: string;
   password: string;
+  nombre?: string;
   roles: string[];
 }
 
@@ -40,6 +41,7 @@ export class AuthService {
   logout(): void {
     localStorage.removeItem('token');
     localStorage.removeItem('roles');
+    localStorage.removeItem('userEmail');
     this.router.navigate(['/auth/login']);
   }
 
@@ -72,7 +74,9 @@ export class AuthService {
   }
 
   hasRole(role: string): boolean {
-    return this.getRoles().includes(role);
+    const userRoles = this.getRoles();
+    // Normalizar roles para compatibilidad (e.g. ROLE_ADMINISTRADOR o ADMINISTRADOR)
+    return userRoles.some(r => r === role || r === `ROLE_${role}` || (role === 'RECEPCIONISTA' && (r === 'AUXILIAR' || r === 'ROLE_AUXILIAR')));
   }
 
   hasAnyRole(requiredRoles: string[]): boolean {

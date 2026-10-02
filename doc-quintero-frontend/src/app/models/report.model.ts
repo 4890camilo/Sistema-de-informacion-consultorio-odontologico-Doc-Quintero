@@ -1,26 +1,29 @@
 export interface AppointmentReportItem {
   id: string;
-  patientName: string;
+  pacienteId?: string;
+  patientName?: string;
   fechaHora: string;
   tipo: string;
-  status: string;
-  duracionBloque: number;
+  estado?: string;
+  status?: string;
+  duracionMinutos?: number;
+  duracionBloque?: number;
+  notas?: string;
   notes?: string;
+  comentarioInterno?: string;
 }
 
 export interface ReportSummary {
-  totalAppointments: number;
-  completedAppointments: number;
-  cancelledAppointments: number;
-  totalPatients: number;
-  appointmentsByType: {
-    [key: string]: number;
-  };
+  totalPacientes: number;
+  totalCitas: number;
+  citasCompletadas: number;
+  citasCanceladas: number;
+  totalIngresosEstimados: number;
 }
 
 export interface ReportFilter {
   startDate: string;
   endDate: string;
-  appointmentType?: string;
+  tipo?: string;
   status?: string;
 }

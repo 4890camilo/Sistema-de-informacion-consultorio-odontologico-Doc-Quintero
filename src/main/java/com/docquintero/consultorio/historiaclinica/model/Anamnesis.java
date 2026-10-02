@@ -1,5 +1,6 @@
 package com.docquintero.consultorio.historiaclinica.model;
 
+import com.docquintero.consultorio.security.EncryptedField;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -18,7 +19,10 @@ public class Anamnesis {
     private boolean enTratamientoMedico;
     private String detalleTratamiento;
     
+    @EncryptedField
     private String medicamentos;
+
+    @EncryptedField
     private String alergias;
     
     // Enfermedades Sistémicas (diabetes, hipertensión, etc.)
@@ -27,12 +31,16 @@ public class Anamnesis {
     // Hábitos (tabaquismo, alcohol, bruxismo, etc.)
     private List<String> habitos;
     
+    @EncryptedField
     private String antecedentesQuirurgicos;
+
+    @EncryptedField
     private String antecedentesOdontologicos;
     
     private boolean embarazo;
     
     // Alertas Médicas Destacadas
+    @EncryptedField
     private String alertasMedicas;
     
     private String comentarios;

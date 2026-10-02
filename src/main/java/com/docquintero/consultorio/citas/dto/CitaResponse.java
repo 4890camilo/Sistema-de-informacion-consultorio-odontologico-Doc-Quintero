@@ -10,6 +10,7 @@ import java.util.List;
 public record CitaResponse(
     String id,
     String pacienteId,
+    String patientName,
     String odontologoId,
     LocalDateTime fechaHora,
     Integer duracionMinutos,

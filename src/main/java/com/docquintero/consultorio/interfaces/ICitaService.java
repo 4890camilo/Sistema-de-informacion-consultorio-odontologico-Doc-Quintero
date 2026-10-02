@@ -13,6 +13,7 @@ public interface ICitaService {
     List<CitaResponse> listarPorRango(LocalDateTime desde, LocalDateTime hasta);
     CitaResponse crear(CitaRequest request);
     CitaResponse actualizar(String id, CitaRequest request);
+    CitaResponse reprogramar(String id, LocalDateTime nuevaFechaHora);
     CitaResponse cambiarEstado(String id, CitaEstadoRequest request);
     void cancelar(String id);
 }
