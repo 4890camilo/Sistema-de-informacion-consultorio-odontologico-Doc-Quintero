@@ -130,12 +130,30 @@ Los archivos de infraestructura ya incluidos en el repositorio son:
 
 ## 📚 Documentación del Proyecto
 
+### Documentación Técnica
+
 | Documento | Descripción |
 |-----------|-------------|
-| [Manual de Usuario](docs-tecnica/manual-usuario.md) | Guía de uso por rol (Admin, Odontólogo, Recepcionista) |
-| [Manual de Instalación](docs-tecnica/manual-instalacion.md) | Guía técnica de instalación local y en la nube |
-| [Requerimientos](gestion-proyecto/requerimientos/requerimientos.md) | Matriz RF y RNF del sistema |
-| [Historias de Usuario](gestion-proyecto/historias-usuario/historias-usuario.md) | Historias de usuario del proyecto |
+| [Manual de Usuario](docs-tecnica/manual-usuario.md) | Guía de uso por rol: Admin, Odontólogo y Recepcionista |
+| [Manual de Instalación y Despliegue](docs-tecnica/manual-instalacion.md) | Guía técnica de instalación local y en la nube (Render + MongoDB Atlas) |
+
+### Gestión del Proyecto
+
+| Documento | Descripción |
+|-----------|-------------|
+| [Requerimientos (RF y RNF)](gestion-proyecto/requerimientos/requerimientos.md) | Matriz completa de requerimientos funcionales y no funcionales |
+| [Historias de Usuario](gestion-proyecto/historias-usuario/historias-usuario.md) | Historias de usuario con criterios de aceptación |
+| [Diagramas de Diseño](gestion-proyecto/diagramas-diseño/diagramas-diseño.md) | Diagramas de clases, componentes y arquitectura |
+| [Diagramas de Procesos](gestion-proyecto/diagramas-procesos/diagramas-procesos.md) | Flujos de procesos y casos de uso del sistema |
+
+### Pruebas y Calidad
+
+| Documento | Descripción |
+|-----------|-------------|
+| [Plan de Pruebas](pruebas/plan-pruebas.md) | Estrategia, alcance y tipos de prueba |
+| [Reporte de Pruebas Unitarias](pruebas/reporte-unitarias.md) | Resultados de pruebas unitarias con JUnit 5 y JaCoCo |
+| [Reporte de Rendimiento, Seguridad y Aceptación](pruebas/reporte-rendimiento-seguridad-aceptacion.md) | Resultados de pruebas de carga, seguridad y criterios de aceptación |
+
 
 ---
 
