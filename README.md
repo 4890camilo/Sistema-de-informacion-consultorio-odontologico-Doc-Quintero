@@ -150,7 +150,13 @@ El reporte de cobertura se genera en `target/site/jacoco/index.html`
 
 ---
 
-## 👨‍💻 Autor
+## 👨‍💻 Autores
 
 Proyecto de Grado — Ingeniería de Sistemas  
 **Consultorio Odontológico Doc Quintero**
+
+| Nombre | 
+|--------|
+| Juan Camilo Espitia |
+| Juan Diego Olarte |
+
