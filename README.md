@@ -17,7 +17,18 @@ Sistema de información integral para la gestión administrativa y clínica del 
 
 ---
 
+## 🔑 Credenciales de Acceso para Revisión
+
+| Campo | Valor |
+|-------|-------|
+| **Email** | `correo1@gmail.com` |
+| **Contraseña** | `123456` |
+| **Rol** | `ADMINISTRADOR` (acceso total al sistema) |
+
+---
+
 ## 🏗️ Arquitectura del Sistema
+
 
 ```
 ┌─────────────────────────────────────────────────────────┐
