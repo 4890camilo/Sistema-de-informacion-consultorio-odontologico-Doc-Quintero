@@ -7,7 +7,7 @@ import { AppointmentReportItem, ReportSummary } from '../models/report.model';
   providedIn: 'root'
 })
 export class ReportService {
-  private apiUrl = 'http://localhost:8080/api/reportes';
+  private apiUrl = 'https://doc-quintero-backend.onrender.com/api/reportes';
 
   constructor(private http: HttpClient) {}
 
@@ -15,7 +15,7 @@ export class ReportService {
    * Obtener citas por rango de fechas
    */
   getAppointmentsReport(startDate: string, endDate: string): Observable<AppointmentReportItem[]> {
-    return this.http.get<AppointmentReportItem[]>('http://localhost:8080/api/citas/rango', {
+    return this.http.get<AppointmentReportItem[]>('https://doc-quintero-backend.onrender.com/api/citas/rango', {
       params: { desde: startDate, hasta: endDate }
     });
   }

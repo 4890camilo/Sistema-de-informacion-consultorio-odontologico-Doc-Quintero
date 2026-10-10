@@ -7,7 +7,7 @@ import { AppointmentRequest, AppointmentResponse, AvailabilitySlot, AppointmentL
   providedIn: 'root'
 })
 export class AppointmentService {
-  private apiUrl = 'http://localhost:8080/api/citas';
+  private apiUrl = 'https://doc-quintero-backend.onrender.com/api/citas';
 
   constructor(private http: HttpClient) {}
 

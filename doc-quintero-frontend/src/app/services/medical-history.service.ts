@@ -7,7 +7,7 @@ import { MedicalHistoryRequest, MedicalHistoryResponse, MedicalHistoryListItem }
   providedIn: 'root'
 })
 export class MedicalHistoryService {
-  private apiUrl = 'http://localhost:8080/api/historia-clinica';
+  private apiUrl = 'https://doc-quintero-backend.onrender.com/api/historia-clinica';
 
   constructor(private http: HttpClient) {}
 

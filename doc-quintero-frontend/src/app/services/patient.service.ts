@@ -7,7 +7,7 @@ import { PatientRequest, PatientResponse, PatientListItem } from '../models/pati
   providedIn: 'root'
 })
 export class PatientService {
-  private apiUrl = 'http://localhost:8080/api/pacientes';
+  private apiUrl = 'https://doc-quintero-backend.onrender.com/api/pacientes';
 
   constructor(private http: HttpClient) {}
 

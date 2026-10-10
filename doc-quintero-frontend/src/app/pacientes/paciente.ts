@@ -21,7 +21,7 @@ export interface Patient {
   providedIn: 'root',
 })
 export class PacienteService {
-  private apiUrl = 'http://localhost:8080/api/pacientes';
+  private apiUrl = 'https://doc-quintero-backend.onrender.com/api/pacientes';
 
   constructor(private http: HttpClient) {}
 

@@ -7,7 +7,7 @@ import { EvolucionRequest, EvolucionResponse, EvolucionListItem } from '../model
   providedIn: 'root'
 })
 export class EvolucionService {
-  private apiUrl = 'http://localhost:8080/api/patient-evolution';
+  private apiUrl = 'https://doc-quintero-backend.onrender.com/api/patient-evolution';
 
   constructor(private http: HttpClient) {}
 

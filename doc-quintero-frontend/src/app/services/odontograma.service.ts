@@ -7,7 +7,7 @@ import { OdontogramaRequest, OdontogramaResponse } from '../models/odontograma.m
   providedIn: 'root'
 })
 export class OdontogramaService {
-  private baseUrl = 'http://localhost:8080/api/historia-clinica';
+  private baseUrl = 'https://doc-quintero-backend.onrender.com/api/historia-clinica';
 
   constructor(private http: HttpClient) {}
 

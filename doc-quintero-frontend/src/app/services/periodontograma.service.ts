@@ -7,7 +7,7 @@ import { PeriodontogramaRequest, PeriodontogramaResponse } from '../models/perio
   providedIn: 'root'
 })
 export class PeriodontogramaService {
-  private baseUrl = 'http://localhost:8080/api/historia-clinica';
+  private baseUrl = 'https://doc-quintero-backend.onrender.com/api/historia-clinica';
 
   constructor(private http: HttpClient) {}
 
@@ -25,6 +25,6 @@ export class PeriodontogramaService {
   }
 
   deletePeriodontograma(pid: string): Observable<void> {
-    return this.http.patch<void>(`http://localhost:8080/api/historia-clinica/periodontograma/${pid}/anular`, {});
+    return this.http.patch<void>(`https://doc-quintero-backend.onrender.com/api/historia-clinica/periodontograma/${pid}/anular`, {});
   }
 }
