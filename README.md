@@ -1,85 +1,155 @@
-# Consultorio Odontológico Doc Quintero - Sistema de Información
+# 🦷 Sistema de Información - Consultorio Odontológico Doc Quintero
 
-Sistema de información integral para la gestión administrativa y clínica del **Consultorio Odontológico Doc Quintero**. Permite la administración de personal, gestión de pacientes, agendamiento de citas médicas, historias clínicas electrónicas y reportes de gestión.
-
----
-
-## 🚀 Cómo Ver el Proyecto Desplegado (En Vivo)
-
-Una vez completado el despliegue en **Render**, la API REST y su documentación interactiva están disponibles públicamente:
-
-### 🌐 Enlaces de Acceso
-* **Documentación Interactiva (Swagger UI):**  
-  `https://<TU-SERVICIO-RENDER>.onrender.com/swagger-ui.html`  
-  *(En esta interfaz podrás probar todos los endpoints y operaciones en tiempo real directamente desde tu navegador).*
-* **Especificación OpenAPI (JSON):**  
-  `https://<TU-SERVICIO-RENDER>.onrender.com/api-docs`
-* **URL Base de la API:**  
-  `https://<TU-SERVICIO-RENDER>.onrender.com/api`
-
-### 🔑 Credenciales Iniciales de Prueba
-Para autenticarte y probar los endpoints en Swagger UI o mediante Postman/Frontend:
-* **Usuario:** `admin@docquintero.com`
-* **Contraseña:** `Admin123!`
-* **Rol:** `ROLE_ADMIN`
-
-> **Nota:** La primera petición a un servicio gratuito de Render puede tardar entre 30 y 50 segundos mientras el servidor sale del estado de reposo (sleep mode).
+Sistema de información integral para la gestión administrativa y clínica del **Consultorio Odontológico Doc Quintero** (Proyecto de Grado - Ingeniería de Sistemas). Digitaliza y centraliza los procesos de agendamiento, historias clínicas, gestión de pacientes y reportes gerenciales del consultorio.
 
 ---
 
-## 🛠️ Guía Rápida: Cómo Desplegar Gratis en Render (Paso a Paso)
+## 🌐 Sistema en Producción (Live)
 
-El proyecto incluye un archivo de infraestructura [`render.yaml`](./render.yaml) preconfigurado para realizar el despliegue automático.
+| Servicio | URL |
+|----------|-----|
+| 🖥️ **Frontend (Interfaz de Usuario)** | [https://doc-quintero-frontend.onrender.com](https://doc-quintero-frontend.onrender.com) |
+| ⚙️ **Backend API REST** | [https://doc-quintero-backend.onrender.com/api](https://doc-quintero-backend.onrender.com/api) |
+| 📚 **Documentación Swagger UI** | [https://doc-quintero-backend.onrender.com/swagger-ui.html](https://doc-quintero-backend.onrender.com/swagger-ui.html) |
+| 📄 **Especificación OpenAPI (JSON)** | [https://doc-quintero-backend.onrender.com/api-docs](https://doc-quintero-backend.onrender.com/api-docs) |
 
-### Paso 1: Configurar Base de Datos en MongoDB Atlas (Gratis de por vida)
-1. Ingresa a [mongodb.com/atlas](https://www.mongodb.com/atlas/database) e inicia sesión o regístrate.
-2. Crea un clúster gratuito **M0 Free Tier** (puedes elegir proveedor AWS en la región más cercana, ej. `us-east-1`).
-3. Ve a **Database Access** y crea un usuario de base de datos (ejemplo: usuario `admin_quintero` con su contraseña).
-4. Ve a **Network Access** y haz clic en **Add IP Address** -> selecciona **Allow Access from Anywhere (`0.0.0.0/0`)** -> confirma.
-5. Ve a **Databases** > haz clic en **Connect** > selecciona **Drivers (Java)** y copia tu Connection String. Debe tener este formato:
-   ```text
-   mongodb+srv://admin_quintero:<TU_PASSWORD>@cluster0.xyz.mongodb.net/docquintero?retryWrites=true&w=majority
-   ```
-   *(Asegúrate de reemplazar `<TU_PASSWORD>` por tu contraseña real).*
+> ⚠️ **Nota:** El plan gratuito de Render entra en reposo por inactividad. La **primera petición** puede tardar entre **30 y 60 segundos** en responder mientras el servidor se reactiva. Las siguientes peticiones son inmediatas.
 
-### Paso 2: Conectar y Desplegar en Render
-1. Ingresa a [render.com](https://render.com) e inicia sesión con tu cuenta de **GitHub**.
-2. En tu Dashboard de Render, haz clic en el botón **New +** y selecciona **Blueprint** (o **Web Service**).
-3. Conecta el repositorio: `4890camilo/Sistema-de-informacion-consultorio-odontologico-Doc-Quintero`.
-4. Render detectará automáticamente el archivo `render.yaml`:
-   * **Nombre:** `doc-quintero-backend`
-   * **Entorno:** `Java`
-   * **Build Command:** `./mvnw clean package -DskipTests`
-   * **Start Command:** `java -jar target/docquintero-0.0.1-SNAPSHOT.jar`
-5. En la sección de variables de entorno, te solicitará el valor para `SPRING_DATA_MONGODB_URI`:
-   * Pega la cadena de conexión que copiaste de MongoDB Atlas en el Paso 1.
-6. Haz clic en **Apply** (o **Create Web Service**).
-7. Render compilará tu aplicación con Maven y te proporcionará una URL pública con HTTPS (ej. `https://doc-quintero-backend.onrender.com`).
+---
+
+## 🔑 Credenciales de Acceso
+
+| Campo | Valor |
+|-------|-------|
+| **Email** | `admin@docquintero.com` |
+| **Contraseña** | `1234567` |
+| **Rol** | Administrador (acceso total) |
+
+---
+
+## 🏗️ Arquitectura del Sistema
+
+```
+┌─────────────────────────────────────────────────────────┐
+│                    CLIENTE (Navegador)                  │
+│         Angular 17 SPA — Render Static Site             │
+│    https://doc-quintero-frontend.onrender.com           │
+└──────────────────────┬──────────────────────────────────┘
+                       │ HTTPS / REST + JWT
+┌──────────────────────▼──────────────────────────────────┐
+│                   BACKEND API REST                       │
+│       Spring Boot 3.2 · Java 17 — Render Web Service    │
+│      https://doc-quintero-backend.onrender.com          │
+└──────────────────────┬──────────────────────────────────┘
+                       │ MongoDB Driver (SRV)
+┌──────────────────────▼──────────────────────────────────┐
+│                  BASE DE DATOS                           │
+│         MongoDB Atlas — M0 Free Tier (Cloud)            │
+│            Base de datos: docquintero                   │
+└─────────────────────────────────────────────────────────┘
+```
+
+### Stack Tecnológico
+
+| Capa | Tecnología | Versión |
+|------|-----------|---------|
+| Frontend | Angular | 17 |
+| Backend | Spring Boot | 3.2.0 |
+| Lenguaje | Java | 17 |
+| Base de Datos | MongoDB Atlas | 6.0 |
+| Seguridad | Spring Security + JWT (JJWT) | 0.11.5 |
+| Documentación API | Springdoc OpenAPI (Swagger) | 2.3.0 |
+| Pruebas | JUnit 5 + Mockito + JaCoCo | — |
+
+---
+
+## 📦 Módulos del Sistema
+
+| Módulo | Descripción |
+|--------|-------------|
+| 🔐 **Autenticación** | Login con JWT, control de sesión por rol |
+| 👤 **Gestión de Usuarios** | CRUD de personal con roles asignados |
+| 🧑‍⚕️ **Pacientes** | Registro, búsqueda y actualización de expedientes |
+| 📅 **Citas** | Agendamiento, reprogramación y cancelación |
+| 📋 **Historia Clínica** | Anamnesis, evoluciones clínicas cronológicas |
+| 🦷 **Odontograma** | Registro gráfico del estado dental |
+| 📊 **Reportes** | Indicadores gerenciales y estadísticas operativas |
+
+### Roles del Sistema
+
+| Rol | Permisos |
+|-----|----------|
+| `ADMINISTRADOR` | Acceso total: usuarios, reportes, configuración |
+| `ODONTOLOGO` | Agenda propia, historias clínicas, odontograma |
+| `RECEPCIONISTA` / `AUXILIAR` | Gestión de pacientes y agendamiento de citas |
 
 ---
 
 ## 💻 Ejecución en Entorno Local (Sin Docker)
 
-Si deseas ejecutar el proyecto en tu máquina local:
+### Requisitos Previos
+- **Java JDK 17** o superior
+- **MongoDB Community Server 6.0** corriendo en `localhost:27017`
+- **Node.js 18+** con npm (para el frontend)
 
-### Requisitos
-* **Java JDK:** 17 o superior
-* **MongoDB Community Server:** Corriendo en `localhost:27017`
+### 1. Backend (Spring Boot)
+```powershell
+# Desde la raíz del proyecto
+.\mvnw.cmd spring-boot:run
+```
+La API quedará disponible en `http://localhost:8080`  
+Swagger UI: [http://localhost:8080/swagger-ui.html](http://localhost:8080/swagger-ui.html)
 
-### Pasos
-1. Iniciar MongoDB local.
-2. Opcional: Cargar datos iniciales ejecutando:
-   ```bash
-   mongosh mongodb://localhost:27017/docquintero database/init-mongo.js
-   ```
-3. Ejecutar el backend con Maven Wrapper:
-   ```powershell
-   .\mvnw.cmd spring-boot:run
-   ```
-4. Acceder localmente a Swagger: [http://localhost:8080/swagger-ui.html](http://localhost:8080/swagger-ui.html)
+### 2. Inicializar Base de Datos (Primera vez)
+```bash
+mongosh mongodb://localhost:27017/docquintero database/init-mongo.js
+```
+
+### 3. Frontend (Angular)
+```bash
+cd doc-quintero-frontend
+npm install
+npm start
+```
+Aplicación disponible en: [http://localhost:4200](http://localhost:4200)
+
+---
+
+## ☁️ Despliegue en la Nube (Gratuito)
+
+El proyecto está configurado para desplegarse automáticamente en Render. Consulta la guía completa en:
+
+📘 [Manual de Instalación y Despliegue](docs-tecnica/manual-instalacion.md)
+
+Los archivos de infraestructura ya incluidos en el repositorio son:
+- [`Dockerfile`](./Dockerfile) — Para el despliegue del backend en Render
+- [`render.yaml`](./render.yaml) — Configuración declarativa de Render
 
 ---
 
 ## 📚 Documentación del Proyecto
-* [Manual de Usuario por Rol](docs-tecnica/manual-usuario.md): Guía de uso, acceso al programa, módulos y perfiles operativos.
-* [Manual Técnico y de Instalación](docs-tecnica/manual-instalacion.md): Detalles de arquitectura, dependencias y configuración avanzada.
+
+| Documento | Descripción |
+|-----------|-------------|
+| [Manual de Usuario](docs-tecnica/manual-usuario.md) | Guía de uso por rol (Admin, Odontólogo, Recepcionista) |
+| [Manual de Instalación](docs-tecnica/manual-instalacion.md) | Guía técnica de instalación local y en la nube |
+| [Requerimientos](gestion-proyecto/requerimientos/requerimientos.md) | Matriz RF y RNF del sistema |
+| [Historias de Usuario](gestion-proyecto/historias-usuario/historias-usuario.md) | Historias de usuario del proyecto |
+
+---
+
+## 🧪 Pruebas
+
+```powershell
+# Ejecutar suite de pruebas unitarias y generar reporte JaCoCo
+.\mvnw.cmd clean test
+```
+
+El reporte de cobertura se genera en `target/site/jacoco/index.html`
+
+---
+
+## 👨‍💻 Autor
+
+Proyecto de Grado — Ingeniería de Sistemas  
+**Consultorio Odontológico Doc Quintero**
