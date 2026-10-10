@@ -17,16 +17,6 @@ Sistema de información integral para la gestión administrativa y clínica del 
 
 ---
 
-## 🔑 Credenciales de Acceso
-
-| Campo | Valor |
-|-------|-------|
-| **Email** | `admin@docquintero.com` |
-| **Contraseña** | `1234567` |
-| **Rol** | Administrador (acceso total) |
-
----
-
 ## 🏗️ Arquitectura del Sistema
 
 ```
